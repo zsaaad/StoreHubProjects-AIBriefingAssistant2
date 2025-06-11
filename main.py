@@ -23,7 +23,8 @@ from bs4 import BeautifulSoup
 from fastapi import FastAPI, HTTPException, Depends
 from fastapi.middleware.cors import CORSMiddleware
 from groq import Groq
-from pydantic import BaseModel, Field, field_validator
+from pydantic import BaseModel, Field
+from pydantic import field_validator
 
 from config import config, ConfigurationError
 
