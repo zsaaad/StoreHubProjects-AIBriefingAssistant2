@@ -1,0 +1,32 @@
+[
+  {
+    "lead_id": "00Qabc00001defGHI",
+    "name": "John Smith",
+    "company": "HubSpot",
+    "email": "john.smith@hubspot.com",
+    "status": "Briefing Generated",
+    "ai_briefing": "{\n   \"company_profile\": \"HubSpot is a software and tools company that specializes in providing marketing, sales, and customer service software to businesses. Their products are built around their proprietary AI technology, Breeze, which aims to streamline customer interactions and improve conversion rates.\",\n   \"key_updates\": \"Recent highlights include the development of their AI-powered CRM software, as well as new features and solutions for startups and small businesses.\",\n   \"lead_angle\": \"Given the prospect's interest in a cloud-based POS system, a sales approach focused on the importance of real-time inventory tracking and fast checkouts could resonate well with them.\",\n   \"conversation_starters\": [\n      \"How are you currently managing your inventory and checkout processes with your current POS system?\",\n      \"What pain points have you experienced with your current POS system, and how do you envision a cloud-based solution addressing those issues?\",\n      \"Can you walk me through your current workflow and how you're using technology to streamline your business operations?\"\n   ],\n   \"potential_objections\": [\n      {\n         \"objection\": \"Our current POS system is not broken, so we're not looking to switch.\",\n         \"response\": \"I completely understand. However, our cloud-based POS system offers significant improvements in terms of speed and inventory tracking, which could be major advantages for your business. I'd be happy to provide more information and a live demo to show you the benefits.\"\n      },\n      {\n         \"objection\": \"We're worried about the transition process and how it could impact our business operations.\",\n         \"response\": \"We understand that changing systems can be daunting. Our implementation team is dedicated to ensuring a seamless transition, with minimal disruption to your business. We can also provide guidance on best practices for integrating our system with your existing processes.\"\n      },\n      {\n         \"objection\": \"We're concerned about the cost and whether your solution is affordable.\",\n         \"response\": \"I'd be happy to discuss pricing with you and highlight the value our solution brings to your business. Our cloud-based POS system is highly scalable and can help your business save time and money in the long run. We also offer flexible pricing plans to fit your business needs.\"\n      }\n   ]\n}",
+    "created_date": "2024-01-15T10:30:00Z",
+    "last_updated": "2024-01-15T13:00:00Z"
+  },
+  {
+    "lead_id": "00Qabc00002defJKL",
+    "name": "Sarah Johnson",
+    "company": "Shopify",
+    "email": "sarah.johnson@shopify.com",
+    "status": "Briefing Generated",
+    "ai_briefing": "{\n   \"company_profile\": {\n      \"business\": \"E-commerce platform provider\",\n      \"industry\": \"Technology\",\n      \"key_characteristics\": \"All-in-one e-commerce platform, seamless integration with physical stores, scalability for growing businesses\"\n   },\n   \"key_updates\": [\n      \"Supercharge Your Marketing with the Maxamark Advanced Plan!\",\n      \"Email Marketing Face-Off: Newsletters vs. Campaigns\"\n   ],\n   \"lead_angle\": \"Highlight the ease of launching an online store and the platform's ability to integrate with physical stores, emphasizing the benefits of using Shopify's all-in-one solution for growing e-commerce businesses.\",\n   \"conversation_starters\": [\n      \"What specific challenges are you facing with your current e-commerce setup?\",\n      \"How do you see your business evolving in the next 6-12 months, and what infrastructure do you need to support that growth?\",\n      \"What are your top priorities when it comes to launching and growing your online store?\"\n   ],\n   \"potential_objections\": [\n      {\n         \"objection\": \"Cost is a major concern for us.\",\n         \"response\": \"Shopify offers a range of pricing plans to suit businesses of all sizes. Our most popular plan, the 'Shopify' plan, starts at $29/month and includes all the essential features you need to get started. We can also provide a customized quote based on your specific business needs.\"\n      },\n      {\n         \"objection\": \"We're not tech-savvy and don't have the resources to manage our own e-commerce platform.\",\n         \"response\": \"Don't worry, Shopify is designed to be user-friendly and easy to navigate, even for those who are not tech-savvy. We also offer 24/7 support to help you with any questions or issues you may have. Our platform is also scalable, so whether you're just starting out or already established, Shopify can grow with your business.\"\n      },\n      {\n         \"objection\": \"We're happy with our current e-commerce solution and don't see the need to switch.\",\n         \"response\": \"I'd be happy to hear more about your current setup and what you like about it. However, Shopify offers some unique features and benefits that may set us apart from your current provider. Can I schedule a demo to show you how Shopify can specifically address your business needs?\"\n      }\n   ]\n}",
+    "created_date": "2024-01-14T14:20:00Z",
+    "last_updated": "2024-01-15T13:00:00Z"
+  },
+  {
+    "lead_id": "00Qabc00003defMNO",
+    "name": "Mike Chen",
+    "company": "Stripe",
+    "email": "mike.chen@stripe.com",
+    "status": "Qualified",
+    "ai_briefing": null,
+    "created_date": "2024-01-13T09:15:00Z",
+    "last_updated": "2024-01-13T09:15:00Z"
+  }
+]

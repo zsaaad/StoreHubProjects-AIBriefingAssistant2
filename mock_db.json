@@ -1,0 +1,12 @@
+[
+  {
+    "context_id": "ad_001_pos",
+    "source_copy": "Tired of slow, clunky POS systems? Our new cloud-based solution offers lightning-fast checkouts and real-time inventory tracking.",
+    "landing_page_url": "https://www.yourcompany.com/pos-promo"
+  },
+  {
+    "context_id": "ad_002_ecommerce",
+    "source_copy": "Launch your online store in minutes! Our all-in-one e-commerce platform integrates seamlessly with your physical store.",
+    "landing_page_url": "https://www.yourcompany.com/ecommerce-launch"
+  }
+] 
