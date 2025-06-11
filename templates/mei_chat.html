@@ -1,0 +1,917 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mei - StoreHub Lead Qualification Assistant</title>
+    <link href="https://fonts.googleapis.com/css2?family=Barlow:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Barlow', Arial, sans-serif;
+            background: #2d2d2d;  /* Dark grey background */
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        .chat-container {
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            max-width: 900px;
+            margin: 0 auto;
+            background: white;
+            box-shadow: 0 0 30px rgba(0,0,0,0.2);
+        }
+
+        .chat-header {
+            background: #555;  /* Dark grey */
+            color: white;
+            padding: 15px 20px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .chat-header img {
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            background: white;
+            padding: 8px;
+        }
+
+        .header-info h5 {
+            margin: 0;
+            font-weight: 600;
+            font-size: 18px;
+        }
+
+        .header-info small {
+            opacity: 0.9;
+            font-size: 13px;
+        }
+
+        .status-indicators {
+            margin-left: auto;
+            display: flex;
+            gap: 10px;
+        }
+
+        .status-badge {
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: 500;
+            text-transform: uppercase;
+        }
+
+        .status-badge.mql {
+            background: rgba(255,255,255,0.2);
+            color: white;
+        }
+
+        .status-badge.sql {
+            background: #666;  /* Dark grey */
+            color: white;
+        }
+
+        .status-badge.meeting {
+            background: #444;  /* Darker grey */
+            color: white;
+        }
+
+        .chat-messages {
+            flex: 1;
+            overflow-y: auto;
+            padding: 20px;
+            background: white;  /* White background */
+            background-image: 
+                radial-gradient(circle at 20% 20%, rgba(0,0,0,0.02) 1px, transparent 1px),
+                radial-gradient(circle at 80% 80%, rgba(0,0,0,0.02) 1px, transparent 1px);
+            background-size: 30px 30px;
+        }
+
+        .message {
+            margin-bottom: 15px;
+            display: flex;
+            align-items: flex-end;
+            gap: 8px;
+        }
+
+        .message.user {
+            justify-content: flex-end;
+        }
+
+        .message.assistant {
+            justify-content: flex-start;
+        }
+
+        .message-bubble {
+            max-width: 70%;
+            padding: 12px 16px;
+            border-radius: 18px;
+            position: relative;
+            word-wrap: break-word;
+            line-height: 1.4;
+            font-size: 15px;
+        }
+
+        .message.user .message-bubble {
+            background: #555;  /* Dark grey */
+            color: white;
+            border-bottom-right-radius: 5px;
+        }
+
+        .message.assistant .message-bubble {
+            background: white;
+            color: #333;
+            border-bottom-left-radius: 5px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+
+        .message-time {
+            font-size: 11px;
+            color: rgba(255,255,255,0.7);
+            margin-top: 4px;
+            text-align: right;
+        }
+
+        .message.assistant .message-time {
+            color: #999;
+            text-align: left;
+        }
+
+        .typing-indicator {
+            display: none;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 15px;
+        }
+
+        .typing-indicator.show {
+            display: flex;
+        }
+
+        .typing-dots {
+            background: white;
+            padding: 12px 16px;
+            border-radius: 18px;
+            border-bottom-left-radius: 5px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+
+        .dots {
+            display: flex;
+            gap: 4px;
+        }
+
+        .dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #666;  /* Dark grey */
+            animation: bounce 1.4s infinite ease-in-out;
+        }
+
+        .dot:nth-child(2) { animation-delay: 0.2s; }
+        .dot:nth-child(3) { animation-delay: 0.4s; }
+
+        @keyframes bounce {
+            0%, 80%, 100% { transform: scale(0.8); opacity: 0.5; }
+            40% { transform: scale(1); opacity: 1; }
+        }
+
+        .chat-input-container {
+            padding: 15px 20px;
+            background: white;
+            border-top: 1px solid #e5e5e5;
+        }
+
+        .input-group {
+            display: flex;
+            gap: 10px;
+            align-items: flex-end;
+        }
+
+        .message-input {
+            flex: 1;
+            border: 1px solid #ddd;
+            border-radius: 25px;
+            padding: 12px 20px;
+            font-size: 15px;
+            outline: none;
+            resize: none;
+            min-height: 50px;
+            max-height: 120px;
+            font-family: 'Barlow', Arial, sans-serif;
+        }
+
+        .message-input:focus {
+            border-color: #00a884;
+            box-shadow: 0 0 0 2px rgba(0,168,132,0.1);
+        }
+
+        .send-button {
+            background: #555;  /* Dark grey */
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .send-button:hover {
+            background: #333;  /* Darker grey */
+            transform: scale(1.05);
+        }
+
+        .send-button:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .welcome-message {
+            text-align: center;
+            padding: 40px 20px;
+            color: #666;
+        }
+
+        .welcome-message h4 {
+            color: #555;  /* Dark grey */
+            margin-bottom: 10px;
+        }
+
+        .session-info {
+            background: rgba(0,168,132,0.1);
+            padding: 10px 15px;
+            margin: 10px 20px;
+            border-radius: 10px;
+            font-size: 13px;
+            color: #005c4b;
+        }
+
+        .qualification-progress {
+            display: flex;
+            gap: 10px;
+            padding: 0 5px;
+        }
+
+        .progress-step {
+            flex: 1;
+            height: 4px;
+            background: rgba(255,255,255,0.3);
+            border-radius: 2px;
+            overflow: hidden;
+        }
+
+        .progress-step.active {
+            background: #666;  /* Dark grey */
+        }
+
+        .quick-actions {
+            display: flex;
+            gap: 8px;
+            padding: 10px 20px;
+            background: white;  /* White background */
+            flex-wrap: wrap;
+        }
+
+        .quick-action {
+            background: white;
+            border: 1px solid #ddd;
+            border-radius: 20px;
+            padding: 8px 15px;
+            font-size: 13px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .quick-action:hover {
+            background: #555;  /* Dark grey */
+            color: white;
+            border-color: #555;
+        }
+
+        /* Mobile responsiveness */
+        @media (max-width: 768px) {
+            .chat-container {
+                height: 100vh;
+                border-radius: 0;
+            }
+
+            .message-bubble {
+                max-width: 85%;
+                font-size: 14px;
+            }
+
+            .chat-header {
+                padding: 12px 15px;
+            }
+
+            .header-info h5 {
+                font-size: 16px;
+            }
+
+            .status-indicators {
+                flex-direction: column;
+                gap: 5px;
+            }
+        }
+
+        /* Scrollbar styling */
+        .chat-messages::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .chat-messages::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        .chat-messages::-webkit-scrollbar-thumb {
+            background: rgba(0,0,0,0.2);
+            border-radius: 3px;
+        }
+
+        .chat-messages::-webkit-scrollbar-thumb:hover {
+            background: rgba(0,0,0,0.3);
+        }
+    </style>
+</head>
+<body>
+    <div class="chat-container">
+        <!-- Chat Header -->
+        <div class="chat-header">
+            <div style="width: 45px; height: 45px; background: white; border-radius: 50%; display: flex; align-items: center; justify-content: center;">
+                <i class="fas fa-user-tie" style="color: #555; font-size: 20px;"></i>
+            </div>
+            <div class="header-info">
+                <h5>Mei from StoreHub</h5>
+                <small>Lead Qualification Assistant</small>
+            </div>
+            <div class="status-indicators">
+                <div class="status-badge mql" id="mql-badge">MQL</div>
+                <div class="status-badge sql" id="sql-badge">SQL</div>
+                <div class="status-badge meeting" id="meeting-badge">Meeting</div>
+            </div>
+        </div>
+
+        <!-- Qualification Progress -->
+        <div class="qualification-progress">
+            <div class="progress-step" id="step-1"></div>
+            <div class="progress-step" id="step-2"></div>
+            <div class="progress-step" id="step-3"></div>
+            <div class="progress-step" id="step-4"></div>
+        </div>
+
+        <!-- Lead Selector -->
+        <div style="padding: 10px 20px; background: white; border-bottom: 1px solid #e9ecef;">
+            <label for="lead-select" style="font-size: 13px; color: #666; margin-bottom: 5px; display: block;">
+                <i class="fas fa-users"></i> Select Lead to Chat With:
+            </label>
+            <select id="lead-select" class="form-select" style="font-size: 13px;">
+                <option value="">Select a lead...</option>
+            </select>
+        </div>
+
+        <!-- Lead Context Display -->
+        <div id="lead-context" style="display: none; padding: 10px 20px; background: #f5f5f5; border-bottom: 1px solid #e9ecef;">
+            <div style="font-size: 13px; color: #666;">
+                <strong id="lead-company-name"></strong> - <span id="lead-business-type"></span>
+                <br>
+                <small>Interested in: <span id="lead-ad-context"></span></small>
+            </div>
+        </div>
+
+        <!-- Session Info -->
+        <div class="session-info" id="session-info">
+            <i class="fas fa-info-circle"></i> New conversation started. Mei will help qualify your business needs.
+        </div>
+
+        <!-- Chat Messages -->
+        <div class="chat-messages" id="chat-messages">
+            <div class="lead-selection-prompt" id="lead-selection-prompt">
+                <div style="text-align: center; padding: 40px 20px; color: #666;">
+                    <div style="width: 80px; height: 80px; background: #555; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 20px;">
+                        <i class="fas fa-user-tie" style="color: white; font-size: 30px;"></i>
+                    </div>
+                    <h4 style="color: #555; margin-bottom: 15px;">👋 Hello! I'm Mei from StoreHub</h4>
+                    <p style="margin-bottom: 20px;">I'm your lead qualification assistant. To provide you with the most relevant support, please select a lead from the dropdown above to start our conversation.</p>
+                    <div style="background: #f5f5f5; padding: 15px; border-radius: 10px; margin-top: 20px;">
+                        <small style="color: #666;">
+                            <i class="fas fa-lightbulb"></i> 
+                            I'll personalize our conversation based on your business type and interests!
+                        </small>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Typing Indicator -->
+        <div class="typing-indicator" id="typing-indicator">
+            <div style="width: 30px; display: flex; justify-content: center;">
+                <i class="fas fa-user-tie" style="color: #00a884; font-size: 14px;"></i>
+            </div>
+            <div class="typing-dots">
+                <div class="dots">
+                    <div class="dot"></div>
+                    <div class="dot"></div>
+                    <div class="dot"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Quick Actions -->
+        <div class="quick-actions" id="quick-actions">
+            <div class="quick-action" onclick="sendQuickMessage('I have a restaurant')">🍽️ I have a restaurant</div>
+            <div class="quick-action" onclick="sendQuickMessage('I have a retail shop')">🛍️ I have a retail shop</div>
+            <div class="quick-action" onclick="sendQuickMessage('Starting new business')">🚀 Starting new business</div>
+            <div class="quick-action" onclick="sendQuickMessage('Tell me about pricing')">💰 Pricing info</div>
+        </div>
+
+        <!-- Chat Input -->
+        <div class="chat-input-container">
+            <div class="input-group">
+                <textarea 
+                    id="message-input" 
+                    class="message-input" 
+                    placeholder="Type your message here..."
+                    rows="1"
+                ></textarea>
+                <button id="send-button" class="send-button">
+                    <i class="fas fa-paper-plane"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
+    <script>
+        class MeiChat {
+            constructor() {
+                this.sessionId = this.generateSessionId();
+                this.currentLeadId = null;
+                this.messageInput = document.getElementById('message-input');
+                this.sendButton = document.getElementById('send-button');
+                this.chatMessages = document.getElementById('chat-messages');
+                this.typingIndicator = document.getElementById('typing-indicator');
+                this.sessionInfo = document.getElementById('session-info');
+                this.quickActions = document.getElementById('quick-actions');
+                this.leadSelect = document.getElementById('lead-select');
+                this.leadContext = document.getElementById('lead-context');
+                
+                this.initializeEventListeners();
+                this.loadMockLeads();
+                // Don't send initial message - wait for lead selection
+            }
+
+            generateSessionId() {
+                return 'session_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+            }
+
+            async loadMockLeads() {
+                try {
+                    const response = await fetch('/api/leads');
+                    const data = await response.json();
+                    
+                    // Populate lead selector
+                    data.leads.forEach(lead => {
+                        const option = document.createElement('option');
+                        option.value = lead.lead_id;
+                        option.textContent = `${lead.company_name} (${lead.context_id})`;
+                        this.leadSelect.appendChild(option);
+                    });
+                } catch (error) {
+                    console.error('Error loading leads:', error);
+                }
+            }
+
+            async selectLead(leadId) {
+                if (!leadId) {
+                    this.currentLeadId = null;
+                    this.leadContext.style.display = 'none';
+                    this.updateQuickActions();
+                    
+                    // Clear chat and show lead selection prompt
+                    this.clearChat();
+                    this.showLeadSelectionPrompt();
+                    return;
+                }
+
+                this.currentLeadId = leadId;
+                
+                try {
+                    const response = await fetch(`/api/leads/${leadId}`);
+                    const data = await response.json();
+                    
+                    // Update lead context display
+                    const context = data.context;
+                    document.getElementById('lead-company-name').textContent = context.lead_data.company_name;
+                    document.getElementById('lead-business-type').textContent = context.business_intel.business_type;
+                    document.getElementById('lead-ad-context').textContent = context.ad_context.focus;
+                    
+                    this.leadContext.style.display = 'block';
+                    
+                    // Update quick actions with contextual replies
+                    this.updateQuickActions(null, data.quick_replies);
+                    
+                    // Clear chat and restart conversation with personalized opening
+                    this.clearChat();
+                    this.sendPersonalizedOpening(context);
+                    
+                } catch (error) {
+                    console.error('Error loading lead context:', error);
+                }
+            }
+
+            clearChat() {
+                // Clear all chat content
+                this.chatMessages.innerHTML = '';
+                
+                // Reset session
+                this.sessionId = this.generateSessionId();
+            }
+
+            async sendPersonalizedOpening(context) {
+                // Hide lead selection prompt
+                const leadPrompt = document.getElementById('lead-selection-prompt');
+                if (leadPrompt) leadPrompt.style.display = 'none';
+
+                // Create personalized opening message based on lead context
+                const leadData = context.lead_data;
+                const businessIntel = context.business_intel;
+                const adContext = context.ad_context;
+
+                // Show typing indicator
+                this.showTyping(true);
+
+                // Simulate a brief delay for realism
+                await new Promise(resolve => setTimeout(resolve, 1500));
+
+                // Generate contextual opening message
+                let openingMessage = this.generateContextualOpening(leadData, businessIntel, adContext);
+
+                // Hide typing and show Mei's personalized message
+                this.showTyping(false);
+                this.addMessage('assistant', openingMessage);
+
+                // Update session info
+                this.sessionInfo.innerHTML = `<i class="fas fa-info-circle"></i> 🎯 Personalized conversation started with ${leadData.company_name}`;
+            }
+
+            generateContextualOpening(leadData, businessIntel, adContext) {
+                const companyName = leadData.company_name;
+                const businessType = businessIntel.business_type || 'business';
+                const adTitle = adContext.title || 'StoreHub solution';
+                const painPoints = businessIntel.pain_points || [];
+
+                // Create contextual opening based on ad they clicked and business type
+                let opening = `Hi there! I'm Mei from StoreHub. `;
+
+                if (adContext.focus === 'Point of Sale efficiency') {
+                    opening += `I noticed you clicked on our ${adTitle} ad - that's perfect for ${businessType.toLowerCase()} operations like ${companyName}! `;
+                    if (painPoints.includes('Manual cash register')) {
+                        opening += `I understand manual cash registers can really slow things down, especially during busy periods. `;
+                    }
+                    opening += `Our cloud POS system can help streamline your payment processing and speed up checkout times.`;
+                } else if (adContext.focus === 'Online store setup') {
+                    opening += `I see you're interested in our ${adTitle} - that's fantastic for growing ${businessType.toLowerCase()} businesses like ${companyName}! `;
+                    if (painPoints.includes('Online presence')) {
+                        opening += `Having an online presence is crucial these days, and we can help you get set up quickly. `;
+                    }
+                    opening += `We can help you create a professional online store that integrates perfectly with your physical operations.`;
+                } else if (adContext.focus === 'Customer retention') {
+                    opening += `Great to see you're thinking about customer loyalty for ${companyName}! Our ${adTitle} is perfect for ${businessType.toLowerCase()} businesses. `;
+                    if (painPoints.includes('Customer retention')) {
+                        opening += `Building customer loyalty is so important for repeat business. `;
+                    }
+                    opening += `Our digital loyalty program can help you reward customers and keep them coming back.`;
+                } else {
+                    opening += `I'd love to learn more about ${companyName} and see how StoreHub can help your ${businessType.toLowerCase()} business grow!`;
+                }
+
+                opening += `\n\nWhat's the biggest challenge you're facing with your current setup?`;
+
+                return opening;
+            }
+
+            showLeadSelectionPrompt() {
+                // Show the lead selection prompt
+                const promptDiv = document.createElement('div');
+                promptDiv.className = 'lead-selection-prompt';
+                promptDiv.id = 'lead-selection-prompt';
+                promptDiv.innerHTML = `
+                    <div style="text-align: center; padding: 40px 20px; color: #666;">
+                        <div style="width: 80px; height: 80px; background: #00a884; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 20px;">
+                            <i class="fas fa-user-tie" style="color: white; font-size: 30px;"></i>
+                        </div>
+                        <h4 style="color: #00a884; margin-bottom: 15px;">👋 Hello! I'm Mei from StoreHub</h4>
+                        <p style="margin-bottom: 20px;">I'm your lead qualification assistant. To provide you with the most relevant support, please select a lead from the dropdown above to start our conversation.</p>
+                        <div style="background: rgba(0,168,132,0.1); padding: 15px; border-radius: 10px; margin-top: 20px;">
+                            <small style="color: #005c4b;">
+                                <i class="fas fa-lightbulb"></i> 
+                                I'll personalize our conversation based on your business type and interests!
+                            </small>
+                        </div>
+                    </div>
+                `;
+                this.chatMessages.appendChild(promptDiv);
+                
+                // Update session info
+                this.sessionInfo.innerHTML = `<i class="fas fa-info-circle"></i> Ready to help! Please select a lead to start a personalized conversation.`;
+            }
+
+            initializeEventListeners() {
+                // Send button click
+                this.sendButton.addEventListener('click', () => this.sendMessage());
+                
+                // Enter key to send (with Shift+Enter for new line)
+                this.messageInput.addEventListener('keydown', (e) => {
+                    if (e.key === 'Enter' && !e.shiftKey) {
+                        e.preventDefault();
+                        this.sendMessage();
+                    }
+                });
+
+                // Auto-resize textarea
+                this.messageInput.addEventListener('input', () => {
+                    this.messageInput.style.height = 'auto';
+                    this.messageInput.style.height = Math.min(this.messageInput.scrollHeight, 120) + 'px';
+                });
+
+                // Lead selection
+                this.leadSelect.addEventListener('change', (e) => {
+                    this.selectLead(e.target.value);
+                });
+            }
+
+
+
+            async sendMessage() {
+                const message = this.messageInput.value.trim();
+                if (!message) return;
+
+                // Disable input while processing
+                this.setInputState(false);
+                
+                // Add user message
+                this.addMessage('user', message);
+                this.messageInput.value = '';
+                this.messageInput.style.height = 'auto';
+
+                // Show typing indicator
+                this.showTyping(true);
+
+                try {
+                    const response = await fetch('/api/chat', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({
+                            session_id: this.sessionId,
+                            message: message,
+                            lead_id: this.currentLeadId
+                        })
+                    });
+
+                    if (!response.ok) {
+                        throw new Error('Failed to send message');
+                    }
+
+                    const data = await response.json();
+                    
+                    // Hide typing indicator
+                    this.showTyping(false);
+                    
+                    // Add Mei's response
+                    this.addMessage('assistant', data.response);
+                    
+                    // Update status indicators
+                    this.updateStatusIndicators(data.lead_status);
+                    
+                    // Update session info
+                    this.updateSessionInfo(data.session_info);
+                    
+                    // Update quick actions based on conversation state and contextual replies
+                    this.updateQuickActions(data.lead_status, data.quick_replies);
+
+                } catch (error) {
+                    console.error('Error sending message:', error);
+                    this.showTyping(false);
+                    this.addMessage('assistant', "I apologize, but I'm experiencing some technical difficulties. Could you please try again?");
+                } finally {
+                    this.setInputState(true);
+                }
+            }
+
+            addMessage(role, content) {
+                const messageDiv = document.createElement('div');
+                messageDiv.className = `message ${role}`;
+                
+                const now = new Date();
+                const timeString = now.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+                
+                messageDiv.innerHTML = `
+                    ${role === 'assistant' ? '<div style="width: 30px; display: flex; justify-content: center;"><i class="fas fa-user-tie" style="color: #555; font-size: 14px;"></i></div>' : ''}
+                    <div class="message-bubble">
+                        ${content}
+                        <div class="message-time">${timeString}</div>
+                    </div>
+                `;
+
+                // Remove lead selection prompt if it exists
+                const leadPrompt = this.chatMessages.querySelector('.lead-selection-prompt');
+                if (leadPrompt) {
+                    leadPrompt.remove();
+                }
+
+                this.chatMessages.appendChild(messageDiv);
+                this.scrollToBottom();
+            }
+
+            showTyping(show) {
+                if (show) {
+                    this.typingIndicator.classList.add('show');
+                } else {
+                    this.typingIndicator.classList.remove('show');
+                }
+                this.scrollToBottom();
+            }
+
+            setInputState(enabled) {
+                this.messageInput.disabled = !enabled;
+                this.sendButton.disabled = !enabled;
+                if (enabled) {
+                    this.messageInput.focus();
+                }
+            }
+
+            updateStatusIndicators(leadStatus) {
+                const mqlBadge = document.getElementById('mql-badge');
+                const sqlBadge = document.getElementById('sql-badge');
+                const meetingBadge = document.getElementById('meeting-badge');
+
+                // Update MQL status
+                if (leadStatus.mql) {
+                    mqlBadge.style.background = '#666';  /* Dark grey */
+                    mqlBadge.textContent = '✓ MQL';
+                } else {
+                    mqlBadge.style.background = 'rgba(255,255,255,0.2)';
+                    mqlBadge.textContent = 'MQL';
+                }
+
+                // Update SQL status
+                if (leadStatus.sql) {
+                    sqlBadge.style.background = '#555';  /* Dark grey */
+                    sqlBadge.style.color = 'white';
+                    sqlBadge.textContent = '✓ SQL';
+                } else {
+                    sqlBadge.style.background = 'rgba(255,255,255,0.2)';
+                    sqlBadge.style.color = 'white';
+                    sqlBadge.textContent = 'SQL';
+                }
+
+                // Update Meeting status
+                if (leadStatus.ms) {
+                    meetingBadge.style.background = '#444';  /* Darker grey */
+                    meetingBadge.textContent = '✓ Meeting';
+                } else {
+                    meetingBadge.style.background = 'rgba(255,255,255,0.2)';
+                    meetingBadge.textContent = 'Meeting';
+                }
+
+                // Update progress steps
+                const steps = ['step-1', 'step-2', 'step-3', 'step-4'];
+                let activeSteps = 0;
+                
+                if (leadStatus.responsecount >= 2) activeSteps = 1;
+                if (leadStatus.mql) activeSteps = 2;
+                if (leadStatus.sql) activeSteps = 3;
+                if (leadStatus.ms) activeSteps = 4;
+
+                steps.forEach((stepId, index) => {
+                    const step = document.getElementById(stepId);
+                    if (index < activeSteps) {
+                        step.classList.add('active');
+                    } else {
+                        step.classList.remove('active');
+                    }
+                });
+            }
+
+            updateSessionInfo(sessionInfo) {
+                let statusText = `💬 ${sessionInfo.total_messages} messages`;
+                
+                if (sessionInfo.mql_status) {
+                    statusText += ' • ✅ Marketing Qualified Lead';
+                }
+                if (sessionInfo.sql_status) {
+                    statusText += ' • 🎯 Sales Qualified Lead';
+                }
+                if (sessionInfo.meeting_scheduled) {
+                    statusText += ' • 📅 Meeting Scheduled';
+                }
+
+                this.sessionInfo.innerHTML = `<i class="fas fa-info-circle"></i> ${statusText}`;
+            }
+
+            updateQuickActions(leadStatus, contextualReplies) {
+                // Use contextual replies if available
+                if (contextualReplies && contextualReplies.length > 0) {
+                    this.quickActions.innerHTML = '';
+                    contextualReplies.forEach((reply, index) => {
+                        const icon = this.getReplyIcon(reply, index);
+                        this.quickActions.innerHTML += `
+                            <div class="quick-action" onclick="sendQuickMessage('${reply.replace(/'/g, '\\\'')}')">${icon} ${reply}</div>
+                        `;
+                    });
+                    this.quickActions.style.display = 'flex';
+                    return;
+                }
+
+                // Default logic when no contextual replies
+                if (leadStatus && (leadStatus.responsecount > 5 || leadStatus.ms)) {
+                    this.quickActions.style.display = 'none';
+                } else if (leadStatus && leadStatus.mql && !leadStatus.sql) {
+                    // Show SQL-focused quick actions
+                    this.quickActions.innerHTML = `
+                        <div class="quick-action" onclick="sendQuickMessage('I am the owner')">👤 I am the owner</div>
+                        <div class="quick-action" onclick="sendQuickMessage('Need POS system soon')">⏰ Need POS soon</div>
+                        <div class="quick-action" onclick="sendQuickMessage('What is the pricing?')">💰 Pricing info</div>
+                        <div class="quick-action" onclick="sendQuickMessage('Schedule a demo')">📅 Schedule demo</div>
+                    `;
+                } else if (leadStatus && leadStatus.sql) {
+                    // Show meeting-focused quick actions
+                    this.quickActions.innerHTML = `
+                        <div class="quick-action" onclick="sendQuickMessage('Face to face meeting')">🤝 Face-to-face</div>
+                        <div class="quick-action" onclick="sendQuickMessage('Online demo')">💻 Online demo</div>
+                        <div class="quick-action" onclick="sendQuickMessage('English preferred')">🇬🇧 English</div>
+                        <div class="quick-action" onclick="sendQuickMessage('Bahasa Malaysia')">🇲🇾 Bahasa</div>
+                    `;
+                } else {
+                    // Default first-time quick actions
+                    this.quickActions.innerHTML = `
+                        <div class="quick-action" onclick="sendQuickMessage('I have a restaurant')">🍽️ I have a restaurant</div>
+                        <div class="quick-action" onclick="sendQuickMessage('I have a retail shop')">🛍️ I have a retail shop</div>
+                        <div class="quick-action" onclick="sendQuickMessage('Starting new business')">🚀 Starting new business</div>
+                        <div class="quick-action" onclick="sendQuickMessage('Tell me about pricing')">💰 Pricing info</div>
+                    `;
+                }
+            }
+
+            getReplyIcon(reply, index) {
+                // Smart icon assignment based on reply content
+                const replyLower = reply.toLowerCase();
+                if (replyLower.includes('payment') || replyLower.includes('processing')) return '💳';
+                if (replyLower.includes('staff') || replyLower.includes('member')) return '👥';
+                if (replyLower.includes('sales') || replyLower.includes('revenue')) return '💰';
+                if (replyLower.includes('manual') || replyLower.includes('register')) return '📋';
+                if (replyLower.includes('loyalty') || replyLower.includes('customer')) return '❤️';
+                if (replyLower.includes('online') || replyLower.includes('website')) return '🌐';
+                if (replyLower.includes('inventory') || replyLower.includes('product')) return '📦';
+                if (replyLower.includes('demo') || replyLower.includes('show')) return '👀';
+                if (replyLower.includes('cost') || replyLower.includes('price')) return '💵';
+                if (replyLower.includes('order') || replyLower.includes('queue')) return '📝';
+                if (replyLower.includes('time') || replyLower.includes('hour')) return '⏰';
+                
+                // Default icons based on position
+                const defaultIcons = ['🏪', '📊', '🚀', '💡', '🔧', '✨'];
+                return defaultIcons[index % defaultIcons.length];
+            }
+
+            scrollToBottom() {
+                setTimeout(() => {
+                    this.chatMessages.scrollTop = this.chatMessages.scrollHeight;
+                }, 100);
+            }
+        }
+
+        // Quick message function
+        function sendQuickMessage(message) {
+            const messageInput = document.getElementById('message-input');
+            messageInput.value = message;
+            window.meiChat.sendMessage();
+        }
+
+        // Initialize chat when page loads
+        document.addEventListener('DOMContentLoaded', () => {
+            window.meiChat = new MeiChat();
+        });
+    </script>
+</body>
+</html> 

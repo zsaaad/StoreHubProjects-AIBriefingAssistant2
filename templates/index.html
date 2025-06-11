@@ -9,13 +9,13 @@
     <link href="https://fonts.googleapis.com/css2?family=Barlow:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
         body {
-            background: linear-gradient(135deg, #0066cc 0%, #004499 100%);
+            background: #2d2d2d;  /* Dark grey background */
             min-height: 100vh;
             font-family: 'Barlow', Arial, sans-serif;
             color: black;
         }
         .main-container {
-            background: rgba(255, 255, 255, 0.95);
+            background: white;  /* White background */
             border-radius: 20px;
             box-shadow: 0 20px 40px rgba(0,0,0,0.1);
             backdrop-filter: blur(10px);
@@ -51,22 +51,22 @@
             font-size: 24px;
             color: white;
         }
-        .generic-icon { background: red; }
-        .lead-icon { background: blue; }
-        .ai-icon { background: green; }
+        .generic-icon { background: #666; }  /* Dark grey */
+        .lead-icon { background: #555; }     /* Dark grey */
+        .ai-icon { background: #444; }       /* Dark grey */
         
         .script-content {
             background: white;
             border-radius: 10px;
             padding: 25px;
-            border-left: 5px solid blue;
+            border-left: 5px solid #666;  /* Dark grey border */
             font-family: 'Barlow', Arial, sans-serif;
             line-height: 1.6;
             white-space: pre-line;
             color: black;
         }
         .lead-info {
-            background: blue;
+            background: #555;  /* Dark grey */
             color: white;
             border-radius: 10px;
             padding: 25px;
@@ -79,7 +79,7 @@
             backdrop-filter: blur(10px);
         }
         .enhancement-badge {
-            background: green;
+            background: #666;  /* Dark grey */
             color: white;
             padding: 8px 16px;
             border-radius: 20px;
@@ -95,7 +95,7 @@
             color: white;
         }
         .btn-generate {
-            background: green;
+            background: #555;  /* Dark grey */
             border: none;
             color: white;
             padding: 15px 30px;
@@ -107,10 +107,10 @@
         .btn-generate:hover {
             transform: scale(1.05);
             color: white;
-            background: #006600;
+            background: #333;  /* Darker grey on hover */
         }
         .comparison-metrics {
-            background: green;
+            background: #666;  /* Dark grey */
             color: white;
             border-radius: 10px;
             padding: 20px;
@@ -132,7 +132,7 @@
             opacity: 0.9;
         }
         .highlight {
-            background: red;
+            background: #555;  /* Dark grey */
             padding: 2px 6px;
             border-radius: 4px;
             color: white;
@@ -163,30 +163,32 @@
         
         /* High-contrast highlighting for key sales talking points */
         .key-callout {
-            color: white !important;
+            color: black !important;
             font-weight: 600;
-            background-color: red;
+            background-color: #ADD8E6;  /* Light blue */
             padding: 2px 4px;
             border-radius: 3px;
-            border: 1px solid red;
+            border: 1px solid #87CEEB;
         }
         
         .key-number {
-            color: white !important;
+            color: black !important;
             font-weight: 700;
             font-size: 14px;
-            background-color: green;
+            background-color: #90EE90;  /* Light green */
             padding: 1px 3px;
             border-radius: 3px;
+            border: 1px solid #98FB98;
         }
         
         .key-action {
-            color: white !important;
+            color: black !important;
             font-weight: 600;
             text-decoration: underline;
-            background-color: blue;
+            background-color: #FFB6C1;  /* Light red/pink */
             padding: 1px 3px;
             border-radius: 3px;
+            border: 1px solid #FFC0CB;
         }
         
         /* Section collapse functionality */
@@ -320,6 +322,67 @@
             color: white;
         }
         
+        /* Script section styling for collapsible AI script sections */
+        .script-section {
+            margin-bottom: 15px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            background: white;
+        }
+
+        .script-section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 15px;
+            background: #f8f9fa;
+            border-radius: 8px 8px 0 0;
+            cursor: pointer;
+            border-bottom: 1px solid #ddd;
+            transition: background-color 0.2s ease;
+        }
+
+        .script-section-header:hover {
+            background: #e9ecef;
+        }
+
+        .script-section-header strong {
+            color: #333;
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        .script-section-toggle {
+            transition: transform 0.3s ease;
+            color: #555;
+            font-size: 12px;
+        }
+
+        .script-section-toggle.collapsed {
+            transform: rotate(180deg);
+        }
+
+        .script-section-content {
+            padding: 15px;
+            background: white;
+            border-radius: 0 0 8px 8px;
+        }
+
+        .script-section-content p {
+            margin: 8px 0;
+            line-height: 1.5;
+        }
+
+        .script-list {
+            margin: 8px 0;
+            padding-left: 20px;
+        }
+
+        .script-list li {
+            margin: 6px 0;
+            line-height: 1.5;
+        }
+
         /* Mobile responsiveness for new sections */
         @media (max-width: 768px) {
             .row .col-md-4 {
@@ -333,6 +396,14 @@
             .collapse-toggle {
                 right: 10px;
                 font-size: 16px;
+            }
+            
+            .script-section-header strong {
+                font-size: 12px;
+            }
+            
+            .script-section-content {
+                padding: 12px;
             }
         }
     </style>
@@ -481,6 +552,15 @@
                             <i class="fas fa-chevron-up collapse-toggle" id="aiToggle"></i>
                         </div>
                         <div class="section-content" id="aiContent">
+                        <!-- Script Section Controls -->
+                        <div class="sub-section-controls" id="scriptControls" style="display: none;">
+                            <button class="btn btn-outline-light btn-sm" onclick="toggleAllScriptSections(false)">
+                                <i class="fas fa-compress-arrows-alt me-1"></i>Collapse Script Sections
+                            </button>
+                            <button class="btn btn-outline-light btn-sm" onclick="toggleAllScriptSections(true)">
+                                <i class="fas fa-expand-arrows-alt me-1"></i>Expand Script Sections
+                            </button>
+                        </div>
                         <div class="row mb-3">
                             <div class="col-12">
                                 <div id="enhancementBadges"></div>
@@ -613,6 +693,44 @@
             });
         }
 
+        // Script section collapse functionality
+        function toggleScriptSection(sectionName) {
+            const content = document.getElementById(sectionName + 'Content');
+            const toggle = document.getElementById(sectionName + 'Toggle');
+            
+            if (content && toggle) {
+                if (content.style.display === 'none') {
+                    // Expand section
+                    content.style.display = 'block';
+                    toggle.classList.remove('collapsed');
+                } else {
+                    // Collapse section
+                    content.style.display = 'none';
+                    toggle.classList.add('collapsed');
+                }
+            }
+        }
+
+        // Master script section toggle functions
+        function toggleAllScriptSections(expand) {
+            const scriptSections = ['opening', 'insights', 'adInteraction', 'questions', 'valueProposition', 'objections', 'nextSteps', 'close'];
+            
+            scriptSections.forEach(sectionName => {
+                const content = document.getElementById(sectionName + 'Content');
+                const toggle = document.getElementById(sectionName + 'Toggle');
+                
+                if (content && toggle) {
+                    if (expand) {
+                        content.style.display = 'block';
+                        toggle.classList.remove('collapsed');
+                    } else {
+                        content.style.display = 'none';
+                        toggle.classList.add('collapsed');
+                    }
+                }
+            });
+        }
+
         // Load generic script
         async function loadGenericScript() {
             try {
@@ -665,14 +783,27 @@
                         <div class="sub-section-content" id="companyIntelSubContent">
                             <div class="lead-detail">
                                 <strong>Company:</strong> <span class="key-callout">${data.company.name}</span><br>
+                                <strong>Store Name:</strong> <span class="key-callout">${data.company.store_name || data.company.name}</span><br>
                                 <strong>Industry:</strong> <span class="key-callout">${data.company.industry}</span><br>
-                                <strong>Size:</strong> <span class="key-callout">${data.company.size}</span><br>
+                                <strong>Sub-Industry:</strong> <span class="key-callout">${data.company.sub_industry || 'Not specified'}</span><br>
+                                <strong>Business Type:</strong> <span class="key-callout">${data.company.business_operation || 'Business'}</span><br>
                                 <strong>Website:</strong> ${data.company.website}
                             </div>
                             <div class="lead-detail">
+                                <strong>Revenue (Monthly):</strong> <span class="key-number">${data.company.revenue_profile?.monthly_revenue || 'N/A'}</span><br>
+                                <strong>Daily Orders:</strong> <span class="key-number">${data.company.revenue_profile?.daily_orders || 'N/A'}</span><br>
+                                <strong>Avg Basket Size:</strong> <span class="key-number">${data.company.revenue_profile?.basket_size || 'N/A'}</span><br>
+                                <strong>Number of Outlets:</strong> <span class="key-number">${data.company.operational_details?.outlets || 1}</span>
+                            </div>
+                            <div class="lead-detail">
+                                <strong>Current Platform:</strong> <span class="key-action">${data.company.operational_details?.current_platform || 'Not specified'}</span><br>
+                                <strong>Existing POS:</strong> <span class="key-action">${data.company.operational_details?.existing_pos || 'None'}</span><br>
+                                <strong>Timeline Need:</strong> <span class="key-action">${data.company.operational_details?.urgency || 'Not specified'}</span><br>
+                                <strong>Preferred Language:</strong> <span class="key-action">${data.contact.preferred_language || 'English'}</span>
+                            </div>
+                            <div class="lead-detail">
                                 <strong>Pain Points:</strong> <span class="key-callout">${data.company.pain_points.join(', ')}</span><br>
-                                <strong>Budget:</strong> <span class="key-number">${data.company.budget}</span><br>
-                                <strong>Timeline:</strong> <span class="key-number">${data.company.timeline}</span>
+                                <strong>Budget:</strong> <span class="key-number">${data.company.budget}</span>
                             </div>
                         </div>
                     </div>
@@ -707,8 +838,7 @@
                         <div class="sub-section-content" id="pageVisitedSubContent">
                             <div class="lead-detail">
                                 <strong>Page:</strong> <span class="key-callout">${data.page_visited.title}</span><br>
-                                <strong>Time:</strong> <span class="key-number">${data.page_visited.time_spent}</span><br>
-                                <strong>Sections:</strong> <span class="key-action">${data.page_visited.sections_viewed.join(', ')}</span>
+                                <strong>Sections Viewed:</strong> <span class="key-action">${data.page_visited.sections_viewed.join(', ')}</span>
                             </div>
                             <div class="lead-detail">
                                 <small><strong>Preview:</strong> ${data.page_visited.preview}</small>
@@ -770,27 +900,47 @@
                 });
 
                 const data = await response.json();
-                currentBriefing = data.briefing;
+                
+                // Handle both success and error responses that contain briefing data
+                if (data.briefing) {
+                    currentBriefing = data.briefing;
 
-                // Generate enhanced script
-                const enhancedScript = generateEnhancedScript(currentLead, currentBriefing);
-                
-                // Update UI
-                document.getElementById('aiScript').innerHTML = enhancedScript;
-                document.getElementById('aiScriptSection').style.display = 'block';
-                
-                // Update enhancement badges
-                updateEnhancementBadges();
-                
-                // Update metrics
-                updateMetrics();
-                
-                // Scroll to AI script section
-                document.getElementById('aiScriptSection').scrollIntoView({behavior: 'smooth'});
+                    // Generate enhanced script
+                    const enhancedScript = generateEnhancedScript(currentLead, currentBriefing);
+                    
+                    // Update UI
+                    document.getElementById('aiScript').innerHTML = enhancedScript;
+                    document.getElementById('aiScriptSection').style.display = 'block';
+                    
+                    // Show script controls
+                    document.getElementById('scriptControls').style.display = 'block';
+                    
+                    // Update enhancement badges
+                    updateEnhancementBadges();
+                    
+                    // Update metrics
+                    updateMetrics();
+                    
+                    // Show warning if there were issues
+                    if (data.status === 'error') {
+                        console.warn('Briefing generated with fallback data due to:', data.metadata?.error);
+                    }
+                    
+                    // Scroll to AI script section
+                    document.getElementById('aiScriptSection').scrollIntoView({behavior: 'smooth'});
+                } else {
+                    throw new Error('No briefing data received from API');
+                }
 
             } catch (error) {
                 console.error('Error generating AI script:', error);
-                document.getElementById('aiScript').textContent = 'Error generating AI-enhanced script. Please try again.';
+                document.getElementById('aiScript').innerHTML = `
+                    <div class="alert alert-warning">
+                        <h5><i class="fas fa-exclamation-triangle me-2"></i>AI Enhancement Unavailable</h5>
+                        <p>Unable to generate AI-enhanced script at this time. Please use the generic script as a starting point and add personalization based on the lead information shown above.</p>
+                        <small class="text-muted">Technical details: ${error.message}</small>
+                    </div>
+                `;
                 document.getElementById('aiScriptSection').style.display = 'block';
             } finally {
                 // Hide loading spinner
@@ -801,52 +951,135 @@
 
         // Generate enhanced script based on lead and AI briefing
         function generateEnhancedScript(lead, briefing) {
-            const firstName = lead.contact.first_name || lead.contact.name.split(' ')[0];
+            const firstName = (lead.contact.first_name || lead.contact.name || 'there').split(' ')[0];
+            const companyName = lead.company.name || 'your company';
+            const industry = lead.company.industry || 'business';
+            const pageTitle = lead.page_visited?.title || 'our website';
+            const sectionsViewed = lead.page_visited?.sections_viewed || ['our services'];
+            const adHeadline = lead.ad_creative?.headline || 'our solution';
+            const adCta = lead.ad_creative?.cta || 'learn more';
+            const painPoints = lead.company.pain_points || ['operational efficiency'];
+            const newsHeadline = lead.news_snippets?.[0]?.headline || 'recent developments';
+            const newsSource = lead.news_snippets?.[0]?.source || 'industry news';
+            const newsSnippet = lead.news_snippets?.[0]?.snippet || 'positive market developments';
+            const campaign = lead.campaign || 'our marketing campaign';
+            const interestLevel = lead.interest_level || 'high';
+            const companySize = lead.company.size || 'growing';
+            const storeName = lead.company.store_name || companyName;
+            const monthlyRevenue = lead.company.revenue_profile?.monthly_revenue || 'N/A';
+            const dailyOrders = lead.company.revenue_profile?.daily_orders || 'N/A';
+            const currentPlatform = lead.company.operational_details?.current_platform || 'traditional methods';
+            const existingPOS = lead.company.operational_details?.existing_pos || 'manual systems';
+            const timelineNeed = lead.company.operational_details?.urgency || 'soon';
+            const numOutlets = lead.company.operational_details?.outlets || 1;
             
-            return `<strong>PERSONALIZED OPENING:</strong>
-Hi <span class="key-callout">${firstName}</span>, this is [Your Name] from [Company]. I hope you're having a great day!
+            return `
+                <div class="script-section">
+                    <div class="script-section-header" onclick="toggleScriptSection('opening')">
+                        <strong><i class="fas fa-handshake me-2"></i>PERSONALIZED OPENING</strong>
+                        <i class="fas fa-chevron-up script-section-toggle" id="openingToggle"></i>
+                    </div>
+                    <div class="script-section-content" id="openingContent">
+                        <p>Hi <span class="key-callout">${firstName}</span>, this is [Your Name] from [Company]. I hope you're having a great day!</p>
+                        <p>I noticed you recently visited our <span class="key-callout">${pageTitle}</span> page, particularly looking at <span class="key-action">${sectionsViewed.join(' and ')}</span>. I also did some research on <span class="key-callout">${companyName}</span> and saw some exciting developments.</p>
+                    </div>
+                </div>
 
-I noticed you recently spent <span class="key-number">${lead.page_visited.time_spent}</span> on our <span class="key-callout">${lead.page_visited.title}</span> page, particularly looking at <span class="key-action">${lead.page_visited.sections_viewed.join(' and ')}</span>. I also did some research on <span class="key-callout">${lead.company.name}</span> and saw some exciting developments.
+                <div class="script-section">
+                    <div class="script-section-header" onclick="toggleScriptSection('insights')">
+                        <strong><i class="fas fa-lightbulb me-2"></i>COMPANY-SPECIFIC INSIGHTS & NEWS</strong>
+                        <i class="fas fa-chevron-up script-section-toggle" id="insightsToggle"></i>
+                    </div>
+                    <div class="script-section-content" id="insightsContent">
+                        <p><span class="highlight">From my research, I understand <span class="key-callout">${storeName}</span> operates in the <span class="key-callout">${industry}</span> space with approximately <span class="key-number">${monthlyRevenue}</span> in monthly revenue and around <span class="key-number">${dailyOrders}</span> daily orders.</span></p>
+                        <p><span class="highlight">I noticed you're currently using <span class="key-action">${currentPlatform}</span> and have <span class="key-action">${existingPOS}</span> for your POS system, with a timeline to upgrade <span class="key-action">${timelineNeed}</span>.</span></p>
+                        <p><span class="highlight">I also saw the recent news about "<span class="key-callout">${newsHeadline}</span>" - congratulations on that <span class="key-callout">${newsSource}</span> coverage! ${newsSnippet}</span></p>
+                        ${briefing.company_profile ? `<p><span class="highlight">Additionally, ${typeof briefing.company_profile === 'string' ? briefing.company_profile.substring(0, 150) + '...' : 'your company has been making strategic moves in the market.'}</span></p>` : ''}
+                    </div>
+                </div>
 
-<strong>COMPANY-SPECIFIC INSIGHTS & NEWS:</strong>
-<span class="highlight">From my research, I understand <span class="key-callout">${lead.company.name}</span> operates in the <span class="key-callout">${lead.company.industry}</span> space with <span class="key-number">${lead.company.size}</span> employees.</span> 
+                <div class="script-section">
+                    <div class="script-section-header" onclick="toggleScriptSection('adInteraction')">
+                        <strong><i class="fas fa-ad me-2"></i>BASED ON YOUR AD INTERACTION</strong>
+                        <i class="fas fa-chevron-up script-section-toggle" id="adInteractionToggle"></i>
+                    </div>
+                    <div class="script-section-content" id="adInteractionContent">
+                        <p><span class="highlight">I noticed you clicked on our "<span class="key-callout">${adHeadline}</span>" ad and were interested in "<span class="key-action">${adCta}</span>" - that tells me you're likely looking for ways to <span class="key-callout">${painPoints.join(' and ').toLowerCase()}</span>.</span></p>
+                    </div>
+                </div>
 
-<span class="highlight">I also saw the recent news about "<span class="key-callout">${lead.news_snippets[0].headline}</span>" - congratulations on that <span class="key-callout">${lead.news_snippets[0].source}</span> coverage! ${lead.news_snippets[0].snippet}</span>
+                <div class="script-section">
+                    <div class="script-section-header" onclick="toggleScriptSection('questions')">
+                        <strong><i class="fas fa-question-circle me-2"></i>PERSONALIZED CONVERSATION STARTERS</strong>
+                        <i class="fas fa-chevron-up script-section-toggle" id="questionsToggle"></i>
+                    </div>
+                    <div class="script-section-content" id="questionsContent">
+                        <ul class="script-list">
+                            <li>Since you researched our ${sectionsViewed.join(' and ')}, what specific challenges are you hoping to address with <span class="key-callout">${storeName}</span>?</li>
+                            <li>With <span class="key-number">${dailyOrders}</span> daily orders and <span class="key-action">${existingPOS}</span>, what's driving your need to upgrade <span class="key-action">${timelineNeed}</span>?</li>
+                            <li>How is your current setup with <span class="key-action">${currentPlatform}</span> working for managing your <span class="key-number">${monthlyRevenue}</span> monthly revenue?</li>
+                            <li>I saw you're dealing with <span class="key-callout">${painPoints.join(' and ').toLowerCase()}</span> - how is that impacting your operations right now?</li>
+                            ${briefing.conversation_starters ? briefing.conversation_starters.map(starter => `<li>${starter}</li>`).join('') : '<li>What solutions are you currently evaluating?</li>'}
+                        </ul>
+                    </div>
+                </div>
 
-${briefing.company_profile ? `<span class="highlight">Additionally, ${typeof briefing.company_profile === 'string' ? briefing.company_profile.substring(0, 150) + '...' : 'your company has been making strategic moves in the market.'}</span>` : ''}
+                <div class="script-section">
+                    <div class="script-section-header" onclick="toggleScriptSection('valueProposition')">
+                        <strong><i class="fas fa-trophy me-2"></i>VALUE PROPOSITION ALIGNED TO YOUR JOURNEY</strong>
+                        <i class="fas fa-chevron-up script-section-toggle" id="valuePropositionToggle"></i>
+                    </div>
+                    <div class="script-section-content" id="valuePropositionContent">
+                        <p>Based on your interest in our ${campaign} and the ${sectionsViewed.join(', ')} sections you reviewed, plus your current situation with <span class="key-action">${existingPOS}</span> and <span class="key-number">${monthlyRevenue}</span> monthly revenue, I believe we could provide significant value.</p>
+                        <p>Our solutions have specifically helped similar ${industry} companies with comparable revenue levels:</p>
+                        <ul class="script-list">
+                            <li>Reduce operational costs by up to 40% (as mentioned in our ad)</li>
+                            <li>Handle <span class="key-number">${dailyOrders}+</span> daily orders more efficiently</li>
+                            <li>Seamlessly integrate with platforms like <span class="key-action">${currentPlatform}</span></li>
+                            <li>Scale from single to multiple outlets (you currently have <span class="key-number">${numOutlets}</span>)</li>
+                        </ul>
+                    </div>
+                </div>
 
-<strong>BASED ON YOUR AD INTERACTION:</strong>
-<span class="highlight">I noticed you clicked on our "<span class="key-callout">${lead.ad_creative.headline}</span>" ad and were interested in "<span class="key-action">${lead.ad_creative.cta}</span>" - that tells me you're likely looking for ways to <span class="key-callout">${lead.company.pain_points.join(' and ').toLowerCase()}</span>.</span>
+                <div class="script-section">
+                    <div class="script-section-header" onclick="toggleScriptSection('objections')">
+                        <strong><i class="fas fa-shield-alt me-2"></i>OBJECTION HANDLING</strong>
+                        <i class="fas fa-chevron-up script-section-toggle" id="objectionsToggle"></i>
+                    </div>
+                    <div class="script-section-content" id="objectionsContent">
+                        <ul class="script-list">
+                            ${briefing.potential_objections ? briefing.potential_objections.map(objection => {
+                                const obj = typeof objection === 'object' ? objection : {objection: objection, response: 'Let me address that concern for you.'};
+                                return `<li><strong>If ${obj.objection}:</strong> ${obj.response || 'Let me explain how we can help with that.'}</li>`;
+                            }).join('') : '<li><strong>Budget concerns:</strong> We offer flexible pricing options to fit your needs</li><li><strong>Timeline concerns:</strong> We can work with your preferred implementation schedule</li>'}
+                        </ul>
+                    </div>
+                </div>
 
-<strong>PERSONALIZED CONVERSATION STARTERS:</strong>
-• Since you spent time on our <span class="key-action">ROI Calculator</span>, what specific metrics are you hoping to improve?
-• I saw you're dealing with <span class="key-callout">${lead.company.pain_points.join(' and ').toLowerCase()}</span> - how is that impacting your team right now?
-${briefing.conversation_starters ? briefing.conversation_starters.map(starter => `• ${starter}`).join('\n') : '• What challenges are you facing with your current solutions?'}
+                <div class="script-section">
+                    <div class="script-section-header" onclick="toggleScriptSection('nextSteps')">
+                        <strong><i class="fas fa-arrow-right me-2"></i>PERSONALIZED NEXT STEPS</strong>
+                        <i class="fas fa-chevron-up script-section-toggle" id="nextStepsToggle"></i>
+                    </div>
+                    <div class="script-section-content" id="nextStepsContent">
+                        <p>${firstName}, given your ${interestLevel} interest level and the specific research you've done on our ${sectionsViewed.join(' and ')}, I'd love to show you a personalized demo.</p>
+                        <p>Since you're operating <span class="key-callout">${storeName}</span> with <span class="key-number">${monthlyRevenue}</span> monthly revenue and need to upgrade <span class="key-action">${timelineNeed}</span>, I can show you exactly how other ${industry} companies with similar volume have achieved great results.</p>
+                        <p>Would next Tuesday or Wednesday work better for a 15-minute call where I can show you exactly how this would benefit <span class="key-callout">${storeName}</span> and help you transition from <span class="key-action">${existingPOS}</span>?</p>
+                    </div>
+                </div>
 
-<strong>VALUE PROPOSITION ALIGNED TO YOUR JOURNEY:</strong>
-Based on your interest in our ${lead.campaign} and the ${lead.page_visited.sections_viewed.join(', ')} sections you reviewed, plus your focus on ${lead.company.pain_points.join(' and ')}, I believe we could provide significant value.
-
-Our solutions have specifically helped similar ${lead.company.industry} companies:
-- Reduce operational costs by up to 40% (as mentioned in our ad)
-- Improve efficiency and scalability
-- Address compliance and security requirements
-
-<strong>OBJECTION HANDLING:</strong>
-${briefing.potential_objections ? briefing.potential_objections.map(objection => `• If ${objection.objection}: ${objection.response}`).join('\n') : '• Budget concerns: We offer flexible pricing options that align with your budget of ' + lead.company.budget + '\n• Timeline concerns: We can implement within your ' + lead.company.timeline + ' timeframe'}
-
-<strong>PERSONALIZED NEXT STEPS:</strong>
-${firstName}, given your ${lead.interest_level} interest level, the time you spent researching our ${lead.page_visited.sections_viewed.join(' and ')}, and your ${lead.company.timeline} timeline, I'd love to show you a personalized demo.
-
-Since you were interested in our ROI Calculator, I can show you exactly how other ${lead.company.industry} companies have achieved similar results.
-
-Would next Tuesday or Wednesday work better for a 15-minute call where I can show you exactly how this would benefit ${lead.company.name}?
-
-<strong>PROFESSIONAL CLOSE:</strong>
-${firstName}, I really appreciate your time today. Based on your interest in "${lead.ad_creative.headline}" and the research you've done, I'm excited about the possibility of helping ${lead.company.name} achieve its goals. 
-
-I'll send you a calendar invite and a brief overview of what we discussed, including some resources specific to ${lead.company.industry} companies facing similar ${lead.company.pain_points.join(' and ').toLowerCase()} challenges.
-
-Thank you, and I look forward to our next conversation!`;
+                <div class="script-section">
+                    <div class="script-section-header" onclick="toggleScriptSection('close')">
+                        <strong><i class="fas fa-handshake me-2"></i>PROFESSIONAL CLOSE</strong>
+                        <i class="fas fa-chevron-up script-section-toggle" id="closeToggle"></i>
+                    </div>
+                    <div class="script-section-content" id="closeContent">
+                        <p>${firstName}, I really appreciate your time today. Based on your interest in "${adHeadline}" and your current setup with <span class="key-action">${currentPlatform}</span>, I'm excited about the possibility of helping <span class="key-callout">${storeName}</span> achieve its goals.</p>
+                        <p>I'll send you a calendar invite and a brief overview of what we discussed, including some resources specific to ${industry} companies with similar revenue levels facing ${painPoints.join(' and ').toLowerCase()} challenges.</p>
+                        <p>Thank you, and I look forward to our next conversation!</p>
+                    </div>
+                </div>
+            `;
         }
 
         // Update enhancement badges

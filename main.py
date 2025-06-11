@@ -347,7 +347,7 @@ class AIBriefingService:
                 key_updates=["API configuration needed"],
                 lead_angle="Configure Groq API for AI briefings",
                 conversation_starters=["Set up API keys for full functionality"],
-                potential_objections=["API configuration incomplete"],
+                potential_objections=[{"objection": "API not configured", "response": "Configure Groq API key"}],
                 error="Groq API not configured"
             )
         
@@ -358,34 +358,71 @@ class AIBriefingService:
             
             logger.info("Generating AI briefing...")
             
-            # Call Groq API
-            chat_completion = self.client.chat.completions.create(
-                messages=[
-                    {"role": "system", "content": system_prompt},
-                    {"role": "user", "content": user_prompt}
-                ],
-                model="llama3-8b-8192",
-                response_format={"type": "json_object"},
-                temperature=0.7,
-                max_tokens=1500
-            )
-            
-            # Parse and validate response
-            response_content = chat_completion.choices[0].message.content
-            briefing_json = json.loads(response_content)
-            
-            logger.info("Successfully generated AI briefing")
-            
-            return BriefingData(
-                company_profile=briefing_json.get('company_profile', ''),
-                key_updates=briefing_json.get('key_updates', []),
-                lead_angle=briefing_json.get('lead_angle', ''),
-                conversation_starters=briefing_json.get('conversation_starters', []),
-                potential_objections=briefing_json.get('potential_objections', [])
-            )
-            
+            # Call Groq API with retry logic
+            for attempt in range(2):  # Two attempts
+                try:
+                    chat_completion = self.client.chat.completions.create(
+                        messages=[
+                            {"role": "system", "content": system_prompt},
+                            {"role": "user", "content": user_prompt}
+                        ],
+                        model="llama3-8b-8192",
+                        response_format={"type": "json_object"},
+                        temperature=0.5,  # Lower temperature for more consistent JSON
+                        max_tokens=1200
+                    )
+                    
+                    # Parse and validate response
+                    response_content = chat_completion.choices[0].message.content
+                    logger.info(f"Raw AI response: {response_content[:200]}...")
+                    
+                    briefing_json = json.loads(response_content)
+                    
+                    # Validate required keys and structure
+                    required_keys = ['company_profile', 'key_updates', 'lead_angle', 'conversation_starters', 'potential_objections']
+                    for key in required_keys:
+                        if key not in briefing_json:
+                            raise ValueError(f"Missing required key: {key}")
+                    
+                    # Ensure proper data types
+                    if not isinstance(briefing_json.get('key_updates'), list):
+                        briefing_json['key_updates'] = [str(briefing_json.get('key_updates', ''))]
+                    
+                    if not isinstance(briefing_json.get('conversation_starters'), list):
+                        briefing_json['conversation_starters'] = [str(briefing_json.get('conversation_starters', ''))]
+                    
+                    if not isinstance(briefing_json.get('potential_objections'), list):
+                        objections = briefing_json.get('potential_objections', [])
+                        if isinstance(objections, str):
+                            briefing_json['potential_objections'] = [{"objection": objections, "response": "Address this concern"}]
+                        elif isinstance(objections, list) and objections:
+                            # Ensure each objection is properly structured
+                            formatted_objections = []
+                            for obj in objections:
+                                if isinstance(obj, dict) and 'objection' in obj:
+                                    formatted_objections.append(obj)
+                                else:
+                                    formatted_objections.append({"objection": str(obj), "response": "Address this concern"})
+                            briefing_json['potential_objections'] = formatted_objections
+                    
+                    logger.info("Successfully generated AI briefing")
+                    
+                    return BriefingData(
+                        company_profile=briefing_json.get('company_profile', 'Company analysis available'),
+                        key_updates=briefing_json.get('key_updates', ['Recent updates identified']),
+                        lead_angle=briefing_json.get('lead_angle', 'Customized approach recommended'),
+                        conversation_starters=briefing_json.get('conversation_starters', ['Key questions prepared']),
+                        potential_objections=briefing_json.get('potential_objections', [{"objection": "Common concerns", "response": "Address professionally"}])
+                    )
+                    
+                except json.JSONDecodeError as e:
+                    logger.warning(f"JSON parsing failed on attempt {attempt + 1}: {str(e)}")
+                    if attempt == 1:  # Last attempt
+                        raise e
+                    continue
+                    
         except json.JSONDecodeError as e:
-            error_msg = f"Invalid JSON response from AI: {str(e)}"
+            error_msg = f"Invalid JSON response from AI after retries: {str(e)}"
             logger.error(error_msg)
             return self._create_error_briefing(error_msg)
         except Exception as e:
@@ -397,15 +434,29 @@ class AIBriefingService:
         """Build comprehensive system prompt for AI briefing generation."""
         return """You are an expert B2B sales intelligence assistant. Generate comprehensive pre-call briefings that help sales representatives prepare for prospect conversations.
 
-        Your response MUST be valid JSON with these exact keys:
-        - "company_profile": Concise business overview, industry, and key characteristics
-        - "key_updates": Array of recent developments, news, or changes
-        - "lead_angle": Specific value proposition based on lead context
-        - "conversation_starters": Array of 3-4 specific questions/topics
-        - "potential_objections": Array of 2-3 likely objections with handling strategies
+        CRITICAL: Your response MUST be valid JSON format only. Do not include any markdown, explanations, or text outside the JSON structure.
+
+        Required JSON structure:
+        {
+            "company_profile": "String - Concise business overview, industry, and key characteristics",
+            "key_updates": ["Array of strings - Recent developments, news, or changes"],
+            "lead_angle": "String - Specific value proposition based on lead context",
+            "conversation_starters": [
+                "String - Question 1",
+                "String - Question 2", 
+                "String - Question 3"
+            ],
+            "potential_objections": [
+                {
+                    "objection": "String - Common objection",
+                    "response": "String - How to handle it"
+                }
+            ]
+        }
 
         Focus on actionable insights that enable more effective prospect conversations.
-        Be specific, professional, and sales-oriented in your analysis."""
+        Be specific, professional, and sales-oriented in your analysis.
+        Ensure all JSON strings are properly escaped and the response is valid JSON."""
     
     def _build_user_prompt(self, intelligence: CompanyIntelligence, lead_context: Dict[str, Any]) -> str:
         """Build user prompt with context data."""
@@ -428,11 +479,18 @@ class AIBriefingService:
     def _create_error_briefing(self, error_msg: str) -> BriefingData:
         """Create fallback briefing for error scenarios."""
         return BriefingData(
-            company_profile=f"Error generating briefing: {error_msg}",
-            key_updates=["Briefing generation failed"],
-            lead_angle="Manual research required",
-            conversation_starters=["Review available context manually"],
-            potential_objections=["Address technical issues"],
+            company_profile=f"Unable to generate full briefing due to technical issues. Manual research recommended for this lead.",
+            key_updates=["Briefing generation encountered technical difficulties", "Manual lead research advised"],
+            lead_angle="Proceed with standard qualification approach while technical issues are resolved",
+            conversation_starters=[
+                "Tell me about your current business challenges",
+                "What solutions are you currently evaluating?", 
+                "What's your timeline for implementing new solutions?"
+            ],
+            potential_objections=[
+                {"objection": "Not interested in demos right now", "response": "I understand timing is important. Can we schedule a brief 10-minute call to understand your needs better?"},
+                {"objection": "We're happy with our current solution", "response": "That's great to hear. I'd love to learn what's working well and see if we can add additional value."}
+            ],
             error=error_msg
         )
 
@@ -610,7 +668,8 @@ async def generate_briefing_webhook(request: WebhookRequest):
             "metadata": {
                 "processing_time_seconds": processing_time,
                 "database_updated": update_success,
-                "context_found": context_error is None
+                "context_found": context_error is None,
+                "intelligence_valid": intelligence.is_valid
             }
         }
         
@@ -618,10 +677,28 @@ async def generate_briefing_webhook(request: WebhookRequest):
         raise
     except Exception as e:
         logger.error(f"❌ Briefing generation failed: {str(e)}")
-        raise HTTPException(
-            status_code=500,
-            detail=f"Internal server error: {str(e)}"
-        )
+        
+        # Return a structured error response with fallback briefing
+        error_briefing = ai_briefing_service._create_error_briefing(str(e))
+        
+        return {
+            "status": "error",
+            "message": f"Briefing generation encountered issues for lead {request.lead_id}",
+            "briefing": {
+                "company_profile": error_briefing.company_profile,
+                "key_updates": error_briefing.key_updates,
+                "lead_angle": error_briefing.lead_angle,
+                "conversation_starters": error_briefing.conversation_starters,
+                "potential_objections": error_briefing.potential_objections
+            },
+            "metadata": {
+                "processing_time_seconds": (datetime.now() - start_time).total_seconds(),
+                "database_updated": False,
+                "context_found": False,
+                "intelligence_valid": False,
+                "error": str(e)
+            }
+        }
 
 @app.get("/", summary="Health Check")
 async def health_check():
@@ -729,64 +806,90 @@ What do you think? Can we set something up?"""
 
 @app.get("/api/mock-lead", summary="Get Mock Lead Data")
 async def get_mock_lead():
-    """Return mock lead data that simulates Salesforce lead information."""
+    """Return mock lead data using the rich CSV dataset structure."""
+    # Import the new mock leads data
+    from mock_leads_data import get_all_leads, get_lead_context, BUSINESS_INTELLIGENCE
+    
+    # Get a random lead from the CSV data
+    import random
+    all_leads = get_all_leads()
+    selected_lead = random.choice(all_leads)
+    
+    # Get enhanced context for this lead
+    lead_context = get_lead_context(selected_lead["lead_id"])
+    business_intel = BUSINESS_INTELLIGENCE.get(selected_lead["company_name"], {})
+    
+    # Convert to frontend format with enhanced structure
     mock_lead = {
-        "lead_id": "DEMO_FRONTEND_001",
+        "lead_id": selected_lead["lead_id"],
         "contact": {
-            "name": "Sarah Chen",
-            "first_name": "Sarah",
-            "title": "Chief Technology Officer",
-            "email": "sarah.chen@techstartup.com",
-            "phone": "+1 (555) 123-4567"
+            "name": selected_lead.get("lead_name", ""),
+            "first_name": selected_lead.get("lead_name", "").split()[0] if selected_lead.get("lead_name") else "",
+            "title": selected_lead.get("contact_role", ""),
+            "email": selected_lead.get("email", ""),
+            "phone": selected_lead.get("phone", ""),
+            "preferred_language": selected_lead.get("preferred_language", "English")
         },
         "company": {
-            "name": "TechStartup Inc",
-            "industry": "Technology/SaaS",
-            "size": "50-100 employees",
-            "website": "shopify.com",  # Using Shopify for real demo data
-            "pain_points": ["Scaling infrastructure", "Security compliance", "Cost optimization"],
-            "budget": "$50,000-$100,000",
-            "timeline": "Q1 2024"
+            "name": selected_lead["company_name"],
+            "store_name": selected_lead.get("business_store_name", ""),
+            "industry": selected_lead.get("industry", ""),
+            "sub_industry": selected_lead.get("sub_industry", ""),
+            "business_operation": selected_lead.get("business_operation", ""),
+            "website": selected_lead["company_domain"],
+            "pain_points": business_intel.get("pain_points", []),
+            "revenue_profile": {
+                "monthly_revenue": f"RM{selected_lead.get('average_revenue_month', 0):,}",
+                "daily_orders": selected_lead.get("average_orders_per_day", 0),
+                "basket_size": f"RM{selected_lead.get('basket_size_order', 0)}",
+                "revenue_segment": business_intel.get("revenue_segment", "Unknown")
+            },
+            "operational_details": {
+                "outlets": selected_lead.get("num_outlets", 1),
+                "current_platform": selected_lead.get("merchant_current_platform", "None"),
+                "existing_pos": selected_lead.get("existing_pos_system", "None"),
+                "urgency": selected_lead.get("when_need_pos", "Not specified")
+            }
         },
-        "lead_source": "Website Form",
-        "campaign": "Enterprise Solutions",
-        "interest_level": "High",
-        "context_id": "enterprise_saas_demo",
-        "notes": "Interested in enterprise-grade solutions for rapid scaling",
+        "lead_source": "Digital Advertisement",
+        "campaign": lead_context["ad_context"].get("title", "StoreHub Solution") if lead_context else "StoreHub Solution",
+        "interest_level": business_intel.get("urgency", "Medium"),
+        "context_id": selected_lead["context_id"],
+        "notes": f"Clicked on {lead_context['ad_context'].get('title', 'advertisement')} - {lead_context['ad_context'].get('focus', 'business solution')}" if lead_context else "Interested in business solutions",
         "news_snippets": [
             {
-                "headline": "TechStartup Inc Raises $15M Series A for AI-Powered Analytics Platform",
-                "source": "TechCrunch",
+                "headline": f"{selected_lead['company_name']} Embraces Digital Transformation",
+                "source": "Business Today Malaysia",
                 "date": "2024-01-15",
-                "snippet": "The company plans to use the funding to expand its engineering team and accelerate product development."
+                "snippet": f"Local {selected_lead.get('sub_industry', 'business')} {selected_lead['company_name']} joins the digital revolution to improve customer experience."
             },
             {
-                "headline": "Industry Leaders Embrace AI-First Approach to Business Intelligence",
-                "source": "Forbes",
-                "date": "2024-01-12",
-                "snippet": "Companies like TechStartup Inc are leading the charge in transforming how businesses analyze data."
+                "headline": f"Malaysian {selected_lead.get('industry', 'Business')} Sector Shows Strong Growth",
+                "source": "The Edge Malaysia",
+                "date": "2024-01-12", 
+                "snippet": f"{selected_lead.get('industry', 'Business')} businesses are increasingly adopting technology solutions to stay competitive."
             },
             {
-                "headline": "Scaling Challenges: How Fast-Growing SaaS Companies Handle Infrastructure",
-                "source": "VentureBeat",
+                "headline": "Small Business Tech Adoption Accelerates Post-Pandemic",
+                "source": "The Star",
                 "date": "2024-01-10",
-                "snippet": "Engineering teams face increasing pressure to maintain performance while scaling rapidly."
+                "snippet": "Malaysian SMEs are rapidly digitalizing operations to meet changing consumer expectations."
             }
         ],
         "page_visited": {
-            "url": "https://yoursite.com/enterprise-solutions",
-            "title": "Enterprise AI Solutions - Scale Your Business Intelligence",
-            "time_spent": "4 minutes 32 seconds",
-            "sections_viewed": ["Pricing", "Case Studies", "ROI Calculator"],
-            "preview": "Advanced AI-powered analytics platform designed for enterprise-scale businesses. Our solution helps CTOs and engineering teams build scalable data infrastructure while maintaining security and compliance standards."
+            "url": selected_lead["source_visual_url"],
+            "title": lead_context["ad_context"].get("title", "StoreHub Solutions") if lead_context else "StoreHub Solutions",
+            "time_spent": "3 minutes 45 seconds",
+            "sections_viewed": ["Features", "Pricing", "Case Studies"],
+            "preview": lead_context["ad_context"].get("solution_angle", "Complete business solution") if lead_context else "Complete business solution for modern businesses"
         },
         "ad_creative": {
-            "campaign": "Enterprise Solutions - CTO Targeting",
-            "headline": "Scale Your AI Infrastructure Without The Headaches",
-            "description": "Enterprise-grade AI platform trusted by 500+ CTOs. Reduce scaling costs by 40% while improving performance.",
-            "cta": "See ROI Calculator",
-            "image_description": "Professional dashboard showing AI analytics with upward trending graphs",
-            "targeting": "CTOs at Series A+ companies, 50-500 employees, Technology/SaaS industry"
+            "campaign": lead_context["ad_context"].get("title", "StoreHub Solutions") if lead_context else "StoreHub Solutions",
+            "headline": f"Perfect Solution for {selected_lead.get('sub_industry', 'Your Business')}",
+            "description": f"Trusted by {selected_lead.get('industry', 'business')} owners across Malaysia. Increase efficiency and grow your revenue.",
+            "cta": "Get Free Demo",
+            "image_description": lead_context["ad_context"].get("title", "Business solution") if lead_context else "Modern business solution interface",
+            "targeting": f"{selected_lead.get('contact_role', 'Business Owner')}s in {selected_lead.get('industry', 'Business')} industry, Malaysia"
         }
     }
     
