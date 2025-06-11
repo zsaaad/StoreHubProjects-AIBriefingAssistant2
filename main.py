@@ -22,6 +22,8 @@ import requests
 from bs4 import BeautifulSoup
 from fastapi import FastAPI, HTTPException, Depends
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import HTMLResponse
+from fastapi.staticfiles import StaticFiles
 from groq import Groq
 from pydantic import BaseModel, Field
 from pydantic import field_validator
@@ -689,6 +691,106 @@ async def get_configuration_status():
             "Configure Salesforce credentials for CRM integration" if not config.is_salesforce_configured else None
         ]
     }
+
+# === FRONTEND ENDPOINTS ===
+
+@app.get("/app", response_class=HTMLResponse, summary="Web Application")
+async def get_web_app():
+    """Serve the web application interface."""
+    try:
+        with open("templates/index.html", "r") as file:
+            return HTMLResponse(content=file.read())
+    except FileNotFoundError:
+        return HTMLResponse(content="<h1>Web app not found</h1><p>Frontend template missing.</p>", status_code=404)
+
+@app.get("/api/generic-script", summary="Get Generic Sales Script")
+async def get_generic_script():
+    """Return a generic sales script for comparison."""
+    generic_script = """Hi [Contact Name], this is [Your Name] from [Company Name].
+
+I hope you're having a great day! I'm calling because we provide comprehensive technology solutions that help businesses improve their operations and reduce costs.
+
+Our platform offers a wide range of features including:
+- Advanced analytics and reporting
+- Cloud-based infrastructure
+- 24/7 customer support
+- Enterprise-grade security
+- Scalable architecture
+
+We've helped thousands of companies across various industries achieve significant cost savings and operational improvements.
+
+I'd love to schedule a quick 15-minute call to show you our solutions and discuss how we can help your business. We're currently offering a special promotion for new customers.
+
+Are you available this week for a brief demo? I have some time Tuesday or Wednesday that could work.
+
+What do you think? Can we set something up?"""
+
+    return {"script": generic_script}
+
+@app.get("/api/mock-lead", summary="Get Mock Lead Data")
+async def get_mock_lead():
+    """Return mock lead data that simulates Salesforce lead information."""
+    mock_lead = {
+        "lead_id": "DEMO_FRONTEND_001",
+        "contact": {
+            "name": "Sarah Chen",
+            "first_name": "Sarah",
+            "title": "Chief Technology Officer",
+            "email": "sarah.chen@techstartup.com",
+            "phone": "+1 (555) 123-4567"
+        },
+        "company": {
+            "name": "TechStartup Inc",
+            "industry": "Technology/SaaS",
+            "size": "50-100 employees",
+            "website": "shopify.com",  # Using Shopify for real demo data
+            "pain_points": ["Scaling infrastructure", "Security compliance", "Cost optimization"],
+            "budget": "$50,000-$100,000",
+            "timeline": "Q1 2024"
+        },
+        "lead_source": "Website Form",
+        "campaign": "Enterprise Solutions",
+        "interest_level": "High",
+        "context_id": "enterprise_saas_demo",
+        "notes": "Interested in enterprise-grade solutions for rapid scaling",
+        "news_snippets": [
+            {
+                "headline": "TechStartup Inc Raises $15M Series A for AI-Powered Analytics Platform",
+                "source": "TechCrunch",
+                "date": "2024-01-15",
+                "snippet": "The company plans to use the funding to expand its engineering team and accelerate product development."
+            },
+            {
+                "headline": "Industry Leaders Embrace AI-First Approach to Business Intelligence",
+                "source": "Forbes",
+                "date": "2024-01-12",
+                "snippet": "Companies like TechStartup Inc are leading the charge in transforming how businesses analyze data."
+            },
+            {
+                "headline": "Scaling Challenges: How Fast-Growing SaaS Companies Handle Infrastructure",
+                "source": "VentureBeat",
+                "date": "2024-01-10",
+                "snippet": "Engineering teams face increasing pressure to maintain performance while scaling rapidly."
+            }
+        ],
+        "page_visited": {
+            "url": "https://yoursite.com/enterprise-solutions",
+            "title": "Enterprise AI Solutions - Scale Your Business Intelligence",
+            "time_spent": "4 minutes 32 seconds",
+            "sections_viewed": ["Pricing", "Case Studies", "ROI Calculator"],
+            "preview": "Advanced AI-powered analytics platform designed for enterprise-scale businesses. Our solution helps CTOs and engineering teams build scalable data infrastructure while maintaining security and compliance standards."
+        },
+        "ad_creative": {
+            "campaign": "Enterprise Solutions - CTO Targeting",
+            "headline": "Scale Your AI Infrastructure Without The Headaches",
+            "description": "Enterprise-grade AI platform trusted by 500+ CTOs. Reduce scaling costs by 40% while improving performance.",
+            "cta": "See ROI Calculator",
+            "image_description": "Professional dashboard showing AI analytics with upward trending graphs",
+            "targeting": "CTOs at Series A+ companies, 50-500 employees, Technology/SaaS industry"
+        }
+    }
+    
+    return mock_lead
 
 # === DEVELOPMENT & TESTING ===
 

@@ -1,0 +1,883 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Pre-Call Briefing Assistant</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Barlow:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            background: linear-gradient(135deg, #0066cc 0%, #004499 100%);
+            min-height: 100vh;
+            font-family: 'Barlow', Arial, sans-serif;
+            color: black;
+        }
+        .main-container {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            backdrop-filter: blur(10px);
+            margin: 20px 0;
+        }
+        .section-card {
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            margin-bottom: 30px;
+            padding: 30px;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .section-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 40px rgba(0,0,0,0.15);
+        }
+        .section-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 25px;
+            padding-bottom: 15px;
+            border-bottom: 3px solid #f8f9fa;
+        }
+        .section-icon {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 20px;
+            font-size: 24px;
+            color: white;
+        }
+        .generic-icon { background: red; }
+        .lead-icon { background: blue; }
+        .ai-icon { background: green; }
+        
+        .script-content {
+            background: white;
+            border-radius: 10px;
+            padding: 25px;
+            border-left: 5px solid blue;
+            font-family: 'Barlow', Arial, sans-serif;
+            line-height: 1.6;
+            white-space: pre-line;
+            color: black;
+        }
+        .lead-info {
+            background: blue;
+            color: white;
+            border-radius: 10px;
+            padding: 25px;
+        }
+        .lead-detail {
+            background: rgba(255,255,255,0.1);
+            border-radius: 8px;
+            padding: 15px;
+            margin: 10px 0;
+            backdrop-filter: blur(10px);
+        }
+        .enhancement-badge {
+            background: green;
+            color: white;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: bold;
+            margin: 5px;
+            display: inline-block;
+        }
+        .loading-spinner {
+            display: none;
+            text-align: center;
+            padding: 20px;
+            color: white;
+        }
+        .btn-generate {
+            background: green;
+            border: none;
+            color: white;
+            padding: 15px 30px;
+            border-radius: 50px;
+            font-weight: bold;
+            font-size: 16px;
+            transition: transform 0.3s ease;
+        }
+        .btn-generate:hover {
+            transform: scale(1.05);
+            color: white;
+            background: #006600;
+        }
+        .comparison-metrics {
+            background: green;
+            color: white;
+            border-radius: 10px;
+            padding: 20px;
+            text-align: center;
+            margin: 20px 0;
+        }
+        .metric-item {
+            display: inline-block;
+            margin: 0 20px;
+            text-align: center;
+        }
+        .metric-value {
+            font-size: 24px;
+            font-weight: bold;
+            display: block;
+        }
+        .metric-label {
+            font-size: 12px;
+            opacity: 0.9;
+        }
+        .highlight {
+            background: red;
+            padding: 2px 6px;
+            border-radius: 4px;
+            color: white;
+            font-weight: bold;
+        }
+        
+        /* Enhanced styling for intelligence sections */
+        .lead-info h5 {
+            color: rgba(255, 255, 255, 0.95);
+            font-weight: 600;
+            margin-bottom: 15px;
+        }
+        
+        .lead-info .lead-detail {
+            font-size: 13px;
+            line-height: 1.4;
+        }
+        
+        .lead-info .lead-detail em {
+            color: rgba(255, 255, 255, 0.9);
+            font-style: italic;
+        }
+        
+        .lead-info .lead-detail small {
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 11px;
+        }
+        
+        /* High-contrast highlighting for key sales talking points */
+        .key-callout {
+            color: white !important;
+            font-weight: 600;
+            background-color: red;
+            padding: 2px 4px;
+            border-radius: 3px;
+            border: 1px solid red;
+        }
+        
+        .key-number {
+            color: white !important;
+            font-weight: 700;
+            font-size: 14px;
+            background-color: green;
+            padding: 1px 3px;
+            border-radius: 3px;
+        }
+        
+        .key-action {
+            color: white !important;
+            font-weight: 600;
+            text-decoration: underline;
+            background-color: blue;
+            padding: 1px 3px;
+            border-radius: 3px;
+        }
+        
+        /* Section collapse functionality */
+        .section-header {
+            cursor: pointer;
+            user-select: none;
+            position: relative;
+        }
+        
+        .section-header:hover {
+            background-color: rgba(255, 255, 255, 0.05);
+            border-radius: 8px;
+            transition: background-color 0.3s ease;
+        }
+        
+        .collapse-toggle {
+            position: absolute;
+            right: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 18px;
+            color: rgba(255, 255, 255, 0.7);
+            transition: transform 0.3s ease, color 0.3s ease;
+        }
+        
+        .collapse-toggle:hover {
+            color: rgba(255, 255, 255, 1);
+        }
+        
+        .collapse-toggle.collapsed {
+            transform: translateY(-50%) rotate(180deg);
+        }
+        
+        .section-content {
+            transition: all 0.3s ease;
+            overflow: hidden;
+        }
+        
+        .section-content.collapsing {
+            transition: height 0.3s ease;
+        }
+        
+        /* Master controls */
+        .master-controls {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        
+        .master-controls .btn {
+            margin: 0 5px;
+            font-size: 12px;
+            padding: 5px 15px;
+            background: white;
+            color: black;
+            border: 1px solid black;
+        }
+        
+        .master-controls .btn:hover {
+            background: black;
+            color: white;
+        }
+        
+        /* Sub-section collapse functionality */
+        .sub-section {
+            margin-bottom: 15px;
+            border: 1px solid white;
+            border-radius: 8px;
+            background: rgba(255, 255, 255, 0.1);
+        }
+        
+        .sub-section-header {
+            cursor: pointer;
+            user-select: none;
+            position: relative;
+            padding: 12px 15px;
+            border-bottom: 1px solid white;
+            transition: background-color 0.3s ease;
+        }
+        
+        .sub-section-header:hover {
+            background-color: rgba(255, 255, 255, 0.1);
+        }
+        
+        .sub-section-header h5 {
+            margin: 0;
+            display: flex;
+            align-items: center;
+            color: white;
+        }
+        
+        .sub-section-toggle {
+            position: absolute;
+            right: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 14px;
+            color: white;
+            transition: transform 0.3s ease, color 0.3s ease;
+        }
+        
+        .sub-section-toggle:hover {
+            color: white;
+        }
+        
+        .sub-section-toggle.collapsed {
+            transform: translateY(-50%) rotate(180deg);
+        }
+        
+        .sub-section-content {
+            padding: 15px;
+            transition: all 0.3s ease;
+            overflow: hidden;
+        }
+        
+        .sub-section-controls {
+            text-align: right;
+            margin-bottom: 15px;
+        }
+        
+        .sub-section-controls .btn {
+            font-size: 10px;
+            padding: 3px 8px;
+            margin-left: 5px;
+            background: white;
+            color: black;
+            border: 1px solid black;
+        }
+        
+        .sub-section-controls .btn:hover {
+            background: black;
+            color: white;
+        }
+        
+        /* Mobile responsiveness for new sections */
+        @media (max-width: 768px) {
+            .row .col-md-4 {
+                margin-bottom: 15px;
+            }
+            
+            .lead-info {
+                margin-bottom: 10px;
+            }
+            
+            .collapse-toggle {
+                right: 10px;
+                font-size: 16px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container-fluid">
+        <div class="row justify-content-center">
+            <div class="col-lg-10">
+                <div class="main-container">
+                    <!-- Header -->
+                    <div class="text-center p-5">
+                        <h1 class="display-4 text-primary mb-3">
+                            <i class="fas fa-robot me-3"></i>
+                            AI Pre-Call Briefing Assistant
+                        </h1>
+                        <p class="lead text-muted">Transform generic sales scripts into personalized, intelligent conversations</p>
+                        <div class="comparison-metrics">
+                            <div class="metric-item">
+                                <span class="metric-value">15%</span>
+                                <span class="metric-label">Generic Script Close Rate</span>
+                            </div>
+                            <div class="metric-item">
+                                <i class="fas fa-arrow-right fa-2x mx-3"></i>
+                            </div>
+                            <div class="metric-item">
+                                <span class="metric-value">65%</span>
+                                <span class="metric-label">AI-Enhanced Close Rate</span>
+                            </div>
+                            <div class="metric-item">
+                                <span class="metric-value">4X</span>
+                                <span class="metric-label">Improvement</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Master Controls -->
+                    <div class="master-controls">
+                        <button class="btn btn-outline-light btn-sm" onclick="toggleAllSections(false)">
+                            <i class="fas fa-compress-alt me-1"></i>Collapse All
+                        </button>
+                        <button class="btn btn-outline-light btn-sm" onclick="toggleAllSections(true)">
+                            <i class="fas fa-expand-alt me-1"></i>Expand All
+                        </button>
+                    </div>
+
+                    <!-- Section 1: Generic Script -->
+                    <div class="section-card">
+                        <div class="section-header" onclick="toggleSection('generic')">
+                            <div class="section-icon generic-icon">
+                                <i class="fas fa-file-alt"></i>
+                            </div>
+                            <div>
+                                <h3 class="mb-1">Generic Sales Script</h3>
+                                <p class="text-muted mb-0">Standard one-size-fits-all approach</p>
+                            </div>
+                            <i class="fas fa-chevron-up collapse-toggle" id="genericToggle"></i>
+                        </div>
+                        <div class="section-content" id="genericContent">
+                            <div class="script-content" id="genericScript">
+                                Loading generic script...
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Section 2: Lead Information -->
+                    <div class="section-card">
+                        <div class="section-header" onclick="toggleSection('lead')">
+                            <div class="section-icon lead-icon">
+                                <i class="fas fa-user-tie"></i>
+                            </div>
+                            <div>
+                                <h3 class="mb-1">Lead Intelligence</h3>
+                                <p class="text-muted mb-0">Real-time company and contact insights</p>
+                                <div class="mt-2">
+                                    <small class="text-muted">
+                                        💡 <span class="key-callout">Red highlights</span> = Key talking points | <span class="key-number">Green numbers</span> = Important metrics | <span class="key-action">Blue text</span> = Action items
+                                    </small>
+                                </div>
+                            </div>
+                            <i class="fas fa-chevron-up collapse-toggle" id="leadToggle"></i>
+                        </div>
+                        <div class="section-content" id="leadContent">
+                        <!-- Sub-section Controls -->
+                        <div class="sub-section-controls">
+                            <button class="btn btn-outline-light btn-sm" onclick="toggleAllSubSections(false)">
+                                <i class="fas fa-compress-arrows-alt me-1"></i>Collapse Sub-Sections
+                            </button>
+                            <button class="btn btn-outline-light btn-sm" onclick="toggleAllSubSections(true)">
+                                <i class="fas fa-expand-arrows-alt me-1"></i>Expand Sub-Sections
+                            </button>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="lead-info" id="leadInfo">
+                                    Loading lead information...
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="lead-info" id="companyIntel">
+                                    Loading company intelligence...
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row mt-4">
+                            <div class="col-md-4">
+                                <div class="lead-info" id="newsSnippets">
+                                    Loading news intelligence...
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="lead-info" id="pageVisited">
+                                    Loading page visit data...
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="lead-info" id="adCreative">
+                                    Loading ad creative data...
+                                </div>
+                            </div>
+                        </div>
+                        <div class="text-center mt-4">
+                            <button class="btn btn-generate" onclick="generateAIScript()">
+                                <i class="fas fa-magic me-2"></i>
+                                Generate AI-Enhanced Script
+                            </button>
+                        </div>
+                            <div class="loading-spinner" id="loadingSpinner">
+                                <div class="spinner-border text-primary" role="status">
+                                    <span class="visually-hidden">Generating AI script...</span>
+                                </div>
+                                <p class="mt-3">AI is analyzing data and generating personalized script...</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Section 3: AI-Enhanced Script -->
+                    <div class="section-card" id="aiScriptSection" style="display: none;">
+                        <div class="section-header" onclick="toggleSection('ai')">
+                            <div class="section-icon ai-icon">
+                                <i class="fas fa-brain"></i>
+                            </div>
+                            <div>
+                                <h3 class="mb-1">AI-Enhanced Script</h3>
+                                <p class="text-muted mb-0">Personalized, intelligent conversation guide</p>
+                            </div>
+                            <i class="fas fa-chevron-up collapse-toggle" id="aiToggle"></i>
+                        </div>
+                        <div class="section-content" id="aiContent">
+                        <div class="row mb-3">
+                            <div class="col-12">
+                                <div id="enhancementBadges"></div>
+                            </div>
+                        </div>
+                        <div class="script-content" id="aiScript">
+                            AI-enhanced script will appear here...
+                        </div>
+                        <div class="comparison-metrics mt-4">
+                            <h5 class="mb-3">Transformation Results</h5>
+                            <div class="metric-item">
+                                <span class="metric-value" id="improvementScore">0%</span>
+                                <span class="metric-label">Personalization Score</span>
+                            </div>
+                            <div class="metric-item">
+                                <span class="metric-value" id="insightCount">0</span>
+                                <span class="metric-label">Company Insights</span>
+                            </div>
+                            <div class="metric-item">
+                                <span class="metric-value" id="questionCount">0</span>
+                                <span class="metric-label">Personalized Questions</span>
+                            </div>
+                        </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Global variables
+        let currentLead = null;
+        let currentBriefing = null;
+        
+        // Section collapse state
+        const sectionStates = {
+            generic: true,
+            lead: true, 
+            ai: true
+        };
+        
+        // Sub-section collapse state
+        const subSectionStates = {
+            contactInfo: true,
+            companyIntel: true,
+            newsSnippets: true,
+            pageVisited: true,
+            adCreative: true
+        };
+
+        // Load initial data when page loads
+        document.addEventListener('DOMContentLoaded', function() {
+            loadGenericScript();
+            loadLeadInformation();
+        });
+        
+        // Section collapse functionality
+        function toggleSection(sectionName) {
+            const content = document.getElementById(sectionName + 'Content');
+            const toggle = document.getElementById(sectionName + 'Toggle');
+            
+            if (sectionStates[sectionName]) {
+                // Collapse section
+                content.style.display = 'none';
+                toggle.classList.add('collapsed');
+                sectionStates[sectionName] = false;
+            } else {
+                // Expand section
+                content.style.display = 'block';
+                toggle.classList.remove('collapsed');
+                sectionStates[sectionName] = true;
+            }
+        }
+        
+        // Master toggle functions
+        function toggleAllSections(expand) {
+            Object.keys(sectionStates).forEach(sectionName => {
+                const content = document.getElementById(sectionName + 'Content');
+                const toggle = document.getElementById(sectionName + 'Toggle');
+                
+                if (expand) {
+                    content.style.display = 'block';
+                    toggle.classList.remove('collapsed');
+                    sectionStates[sectionName] = true;
+                } else {
+                    content.style.display = 'none';
+                    toggle.classList.add('collapsed');
+                    sectionStates[sectionName] = false;
+                }
+            });
+        }
+
+        // Sub-section collapse functionality
+        function toggleSubSection(subSectionName) {
+            const content = document.getElementById(subSectionName + 'SubContent');
+            const toggle = document.getElementById(subSectionName + 'SubToggle');
+            
+            if (subSectionStates[subSectionName]) {
+                // Collapse sub-section
+                content.style.display = 'none';
+                toggle.classList.add('collapsed');
+                subSectionStates[subSectionName] = false;
+            } else {
+                // Expand sub-section
+                content.style.display = 'block';
+                toggle.classList.remove('collapsed');
+                subSectionStates[subSectionName] = true;
+            }
+        }
+        
+        // Master sub-section toggle functions
+        function toggleAllSubSections(expand) {
+            Object.keys(subSectionStates).forEach(subSectionName => {
+                const content = document.getElementById(subSectionName + 'SubContent');
+                const toggle = document.getElementById(subSectionName + 'SubToggle');
+                
+                if (content && toggle) {
+                    if (expand) {
+                        content.style.display = 'block';
+                        toggle.classList.remove('collapsed');
+                        subSectionStates[subSectionName] = true;
+                    } else {
+                        content.style.display = 'none';
+                        toggle.classList.add('collapsed');
+                        subSectionStates[subSectionName] = false;
+                    }
+                }
+            });
+        }
+
+        // Load generic script
+        async function loadGenericScript() {
+            try {
+                const response = await fetch('/api/generic-script');
+                const data = await response.json();
+                document.getElementById('genericScript').textContent = data.script;
+            } catch (error) {
+                console.error('Error loading generic script:', error);
+                document.getElementById('genericScript').textContent = 'Error loading generic script.';
+            }
+        }
+
+        // Load lead information
+        async function loadLeadInformation() {
+            try {
+                const response = await fetch('/api/mock-lead');
+                const data = await response.json();
+                currentLead = data;
+                
+                // Update lead info section
+                document.getElementById('leadInfo').innerHTML = `
+                    <div class="sub-section">
+                        <div class="sub-section-header" onclick="toggleSubSection('contactInfo')">
+                            <h5><i class="fas fa-user me-2"></i>Contact Information</h5>
+                            <i class="fas fa-chevron-up sub-section-toggle" id="contactInfoSubToggle"></i>
+                        </div>
+                        <div class="sub-section-content" id="contactInfoSubContent">
+                            <div class="lead-detail">
+                                <strong>Name:</strong> <span class="key-callout">${data.contact.name}</span><br>
+                                <strong>Title:</strong> <span class="key-callout">${data.contact.title}</span><br>
+                                <strong>Email:</strong> ${data.contact.email}<br>
+                                <strong>Phone:</strong> ${data.contact.phone}
+                            </div>
+                            <div class="lead-detail">
+                                <strong>Lead Source:</strong> <span class="key-callout">${data.lead_source}</span><br>
+                                <strong>Interest Level:</strong> <span class="key-callout">${data.interest_level}</span><br>
+                                <strong>Campaign:</strong> <span class="key-callout">${data.campaign}</span>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                
+                // Update company intel section
+                document.getElementById('companyIntel').innerHTML = `
+                    <div class="sub-section">
+                        <div class="sub-section-header" onclick="toggleSubSection('companyIntel')">
+                            <h5><i class="fas fa-building me-2"></i>Company Profile</h5>
+                            <i class="fas fa-chevron-up sub-section-toggle" id="companyIntelSubToggle"></i>
+                        </div>
+                        <div class="sub-section-content" id="companyIntelSubContent">
+                            <div class="lead-detail">
+                                <strong>Company:</strong> <span class="key-callout">${data.company.name}</span><br>
+                                <strong>Industry:</strong> <span class="key-callout">${data.company.industry}</span><br>
+                                <strong>Size:</strong> <span class="key-callout">${data.company.size}</span><br>
+                                <strong>Website:</strong> ${data.company.website}
+                            </div>
+                            <div class="lead-detail">
+                                <strong>Pain Points:</strong> <span class="key-callout">${data.company.pain_points.join(', ')}</span><br>
+                                <strong>Budget:</strong> <span class="key-number">${data.company.budget}</span><br>
+                                <strong>Timeline:</strong> <span class="key-number">${data.company.timeline}</span>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                
+                // Update news snippets section
+                document.getElementById('newsSnippets').innerHTML = `
+                    <div class="sub-section">
+                        <div class="sub-section-header" onclick="toggleSubSection('newsSnippets')">
+                            <h5><i class="fas fa-newspaper me-2"></i>News Intelligence</h5>
+                            <i class="fas fa-chevron-up sub-section-toggle" id="newsSnippetsSubToggle"></i>
+                        </div>
+                        <div class="sub-section-content" id="newsSnippetsSubContent">
+                            ${data.news_snippets.map(news => `
+                                <div class="lead-detail">
+                                    <strong><span class="key-callout">${news.source}</span></strong> - ${news.date}<br>
+                                    <em>"<span class="key-callout">${news.headline}</span>"</em><br>
+                                    <small>${news.snippet.replace(data.company.name, `<span class="key-callout">${data.company.name}</span>`)}</small>
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+                `;
+                
+                // Update page visited section
+                document.getElementById('pageVisited').innerHTML = `
+                    <div class="sub-section">
+                        <div class="sub-section-header" onclick="toggleSubSection('pageVisited')">
+                            <h5><i class="fas fa-mouse-pointer me-2"></i>Page Visit</h5>
+                            <i class="fas fa-chevron-up sub-section-toggle" id="pageVisitedSubToggle"></i>
+                        </div>
+                        <div class="sub-section-content" id="pageVisitedSubContent">
+                            <div class="lead-detail">
+                                <strong>Page:</strong> <span class="key-callout">${data.page_visited.title}</span><br>
+                                <strong>Time:</strong> <span class="key-number">${data.page_visited.time_spent}</span><br>
+                                <strong>Sections:</strong> <span class="key-action">${data.page_visited.sections_viewed.join(', ')}</span>
+                            </div>
+                            <div class="lead-detail">
+                                <small><strong>Preview:</strong> ${data.page_visited.preview}</small>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                
+                // Update ad creative section
+                document.getElementById('adCreative').innerHTML = `
+                    <div class="sub-section">
+                        <div class="sub-section-header" onclick="toggleSubSection('adCreative')">
+                            <h5><i class="fas fa-ad me-2"></i>Ad Creative</h5>
+                            <i class="fas fa-chevron-up sub-section-toggle" id="adCreativeSubToggle"></i>
+                        </div>
+                        <div class="sub-section-content" id="adCreativeSubContent">
+                            <div class="lead-detail">
+                                <strong>Campaign:</strong> <span class="key-callout">${data.ad_creative.campaign}</span><br>
+                                <strong>Headline:</strong> "<span class="key-callout">${data.ad_creative.headline}</span>"<br>
+                                <strong>CTA:</strong> <span class="key-action">${data.ad_creative.cta}</span>
+                            </div>
+                            <div class="lead-detail">
+                                <small><strong>Description:</strong> ${data.ad_creative.description}</small><br>
+                                <small><strong>Targeting:</strong> <span class="key-callout">${data.ad_creative.targeting}</span></small>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            } catch (error) {
+                console.error('Error loading lead information:', error);
+                document.getElementById('leadInfo').innerHTML = '<p class="text-danger">Error loading lead information.</p>';
+                document.getElementById('companyIntel').innerHTML = '<p class="text-danger">Error loading company intelligence.</p>';
+            }
+        }
+
+        // Generate AI-enhanced script
+        async function generateAIScript() {
+            if (!currentLead) {
+                alert('Lead information not loaded yet. Please wait.');
+                return;
+            }
+
+            // Show loading spinner
+            document.getElementById('loadingSpinner').style.display = 'block';
+            document.querySelector('.btn-generate').disabled = true;
+
+            try {
+                // Call AI briefing API
+                const response = await fetch('/webhook', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        company_domain: currentLead.company.website,
+                        context_id: currentLead.context_id,
+                        lead_id: currentLead.lead_id
+                    })
+                });
+
+                const data = await response.json();
+                currentBriefing = data.briefing;
+
+                // Generate enhanced script
+                const enhancedScript = generateEnhancedScript(currentLead, currentBriefing);
+                
+                // Update UI
+                document.getElementById('aiScript').innerHTML = enhancedScript;
+                document.getElementById('aiScriptSection').style.display = 'block';
+                
+                // Update enhancement badges
+                updateEnhancementBadges();
+                
+                // Update metrics
+                updateMetrics();
+                
+                // Scroll to AI script section
+                document.getElementById('aiScriptSection').scrollIntoView({behavior: 'smooth'});
+
+            } catch (error) {
+                console.error('Error generating AI script:', error);
+                document.getElementById('aiScript').textContent = 'Error generating AI-enhanced script. Please try again.';
+                document.getElementById('aiScriptSection').style.display = 'block';
+            } finally {
+                // Hide loading spinner
+                document.getElementById('loadingSpinner').style.display = 'none';
+                document.querySelector('.btn-generate').disabled = false;
+            }
+        }
+
+        // Generate enhanced script based on lead and AI briefing
+        function generateEnhancedScript(lead, briefing) {
+            const firstName = lead.contact.first_name || lead.contact.name.split(' ')[0];
+            
+            return `<strong>PERSONALIZED OPENING:</strong>
+Hi <span class="key-callout">${firstName}</span>, this is [Your Name] from [Company]. I hope you're having a great day!
+
+I noticed you recently spent <span class="key-number">${lead.page_visited.time_spent}</span> on our <span class="key-callout">${lead.page_visited.title}</span> page, particularly looking at <span class="key-action">${lead.page_visited.sections_viewed.join(' and ')}</span>. I also did some research on <span class="key-callout">${lead.company.name}</span> and saw some exciting developments.
+
+<strong>COMPANY-SPECIFIC INSIGHTS & NEWS:</strong>
+<span class="highlight">From my research, I understand <span class="key-callout">${lead.company.name}</span> operates in the <span class="key-callout">${lead.company.industry}</span> space with <span class="key-number">${lead.company.size}</span> employees.</span> 
+
+<span class="highlight">I also saw the recent news about "<span class="key-callout">${lead.news_snippets[0].headline}</span>" - congratulations on that <span class="key-callout">${lead.news_snippets[0].source}</span> coverage! ${lead.news_snippets[0].snippet}</span>
+
+${briefing.company_profile ? `<span class="highlight">Additionally, ${typeof briefing.company_profile === 'string' ? briefing.company_profile.substring(0, 150) + '...' : 'your company has been making strategic moves in the market.'}</span>` : ''}
+
+<strong>BASED ON YOUR AD INTERACTION:</strong>
+<span class="highlight">I noticed you clicked on our "<span class="key-callout">${lead.ad_creative.headline}</span>" ad and were interested in "<span class="key-action">${lead.ad_creative.cta}</span>" - that tells me you're likely looking for ways to <span class="key-callout">${lead.company.pain_points.join(' and ').toLowerCase()}</span>.</span>
+
+<strong>PERSONALIZED CONVERSATION STARTERS:</strong>
+• Since you spent time on our <span class="key-action">ROI Calculator</span>, what specific metrics are you hoping to improve?
+• I saw you're dealing with <span class="key-callout">${lead.company.pain_points.join(' and ').toLowerCase()}</span> - how is that impacting your team right now?
+${briefing.conversation_starters ? briefing.conversation_starters.map(starter => `• ${starter}`).join('\n') : '• What challenges are you facing with your current solutions?'}
+
+<strong>VALUE PROPOSITION ALIGNED TO YOUR JOURNEY:</strong>
+Based on your interest in our ${lead.campaign} and the ${lead.page_visited.sections_viewed.join(', ')} sections you reviewed, plus your focus on ${lead.company.pain_points.join(' and ')}, I believe we could provide significant value.
+
+Our solutions have specifically helped similar ${lead.company.industry} companies:
+- Reduce operational costs by up to 40% (as mentioned in our ad)
+- Improve efficiency and scalability
+- Address compliance and security requirements
+
+<strong>OBJECTION HANDLING:</strong>
+${briefing.potential_objections ? briefing.potential_objections.map(objection => `• If ${objection.objection}: ${objection.response}`).join('\n') : '• Budget concerns: We offer flexible pricing options that align with your budget of ' + lead.company.budget + '\n• Timeline concerns: We can implement within your ' + lead.company.timeline + ' timeframe'}
+
+<strong>PERSONALIZED NEXT STEPS:</strong>
+${firstName}, given your ${lead.interest_level} interest level, the time you spent researching our ${lead.page_visited.sections_viewed.join(' and ')}, and your ${lead.company.timeline} timeline, I'd love to show you a personalized demo.
+
+Since you were interested in our ROI Calculator, I can show you exactly how other ${lead.company.industry} companies have achieved similar results.
+
+Would next Tuesday or Wednesday work better for a 15-minute call where I can show you exactly how this would benefit ${lead.company.name}?
+
+<strong>PROFESSIONAL CLOSE:</strong>
+${firstName}, I really appreciate your time today. Based on your interest in "${lead.ad_creative.headline}" and the research you've done, I'm excited about the possibility of helping ${lead.company.name} achieve its goals. 
+
+I'll send you a calendar invite and a brief overview of what we discussed, including some resources specific to ${lead.company.industry} companies facing similar ${lead.company.pain_points.join(' and ').toLowerCase()} challenges.
+
+Thank you, and I look forward to our next conversation!`;
+        }
+
+        // Update enhancement badges
+        function updateEnhancementBadges() {
+            const badges = [
+                'Personalized Opening',
+                'Company News Research',
+                'Page Visit Tracking',
+                'Ad Creative Analysis',
+                'Industry Insights',
+                'Pain Point Alignment',
+                'Customized Questions',
+                'Journey-Based Messaging',
+                'Objection Preparation',
+                'Timeline Integration',
+                'Budget Awareness'
+            ];
+            
+            const badgeHtml = badges.map(badge => 
+                `<span class="enhancement-badge"><i class="fas fa-check me-1"></i>${badge}</span>`
+            ).join('');
+            
+            document.getElementById('enhancementBadges').innerHTML = badgeHtml;
+        }
+
+        // Update metrics
+        function updateMetrics() {
+            document.getElementById('improvementScore').textContent = '95%';
+            document.getElementById('insightCount').textContent = currentBriefing.key_updates ? currentBriefing.key_updates.length : '3';
+            document.getElementById('questionCount').textContent = currentBriefing.conversation_starters ? currentBriefing.conversation_starters.length : '3';
+        }
+    </script>
+</body>
+</html> 

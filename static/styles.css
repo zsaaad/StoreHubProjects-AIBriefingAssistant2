@@ -1,0 +1,153 @@
+/* Additional styles for AI Pre-Call Briefing Assistant */
+
+/* Animation for enhancement badges */
+.enhancement-badge {
+    animation: fadeInUp 0.5s ease-out;
+}
+
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Improved mobile responsiveness */
+@media (max-width: 768px) {
+    .main-container {
+        margin: 10px;
+        border-radius: 15px;
+    }
+    
+    .section-card {
+        padding: 20px;
+    }
+    
+    .section-header {
+        flex-direction: column;
+        text-align: center;
+    }
+    
+    .section-icon {
+        margin-bottom: 15px;
+        margin-right: 0;
+    }
+    
+    .comparison-metrics {
+        padding: 15px;
+    }
+    
+    .metric-item {
+        display: block;
+        margin: 10px 0;
+    }
+}
+
+/* Loading animation enhancements */
+.loading-spinner .spinner-border {
+    width: 3rem;
+    height: 3rem;
+}
+
+/* Script content enhancements */
+.script-content strong {
+    color: #2c3e50;
+    display: block;
+    margin-top: 15px;
+    margin-bottom: 8px;
+    font-size: 14px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+/* Lead detail improvements */
+.lead-detail strong {
+    color: rgba(255, 255, 255, 0.9);
+    font-weight: 600;
+}
+
+/* Button animations */
+.btn-generate {
+    position: relative;
+    overflow: hidden;
+}
+
+.btn-generate:before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+    transition: left 0.5s;
+}
+
+.btn-generate:hover:before {
+    left: 100%;
+}
+
+/* Highlight animation */
+.highlight {
+    animation: highlightPulse 2s ease-in-out infinite;
+}
+
+@keyframes highlightPulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.8; }
+}
+
+/* Section transitions */
+.section-card {
+    opacity: 0;
+    animation: slideInFromBottom 0.6s ease-out forwards;
+}
+
+.section-card:nth-child(1) { animation-delay: 0.1s; }
+.section-card:nth-child(2) { animation-delay: 0.3s; }
+.section-card:nth-child(3) { animation-delay: 0.5s; }
+
+@keyframes slideInFromBottom {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Success states */
+.success-state {
+    border: 2px solid #28a745;
+    box-shadow: 0 0 20px rgba(40, 167, 69, 0.3);
+}
+
+/* Error states */
+.error-state {
+    border: 2px solid #dc3545;
+    box-shadow: 0 0 20px rgba(220, 53, 69, 0.3);
+}
+
+/* Metric value animations */
+.metric-value {
+    transition: all 0.3s ease;
+}
+
+.metric-value:hover {
+    transform: scale(1.1);
+}
+
+/* Professional color scheme variables */
+:root {
+    --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    --success-gradient: linear-gradient(135deg, #2ed573, #7bed9f);
+    --ai-gradient: linear-gradient(45deg, #00d2d3, #54a0ff);
+    --warning-gradient: linear-gradient(45deg, #ff6b6b, #ee5a24);
+    --info-gradient: linear-gradient(45deg, #4834d4, #686de0);
+} 
